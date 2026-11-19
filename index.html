@@ -1,0 +1,1218 @@
+<!-- ============================================================
+     YE ADMIN APP KA PAGE HAI (Ankush AI Admin ke assets/index.html mein jaata hai).
+     User app (Ankush AI) mein is file ki zaroorat nahi.
+     ============================================================ -->
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ankush AI - Admin</title>
+<style>
+  :root { --bg:#000; --card:#0a0f0d; --line:#00ff88; --txt:#fff; --mute:#9aa5a0; --bad:#ff5c5c; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--txt); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  h1,h2,h3 { margin:0; }
+  .hidden { display:none !important; }
+  .neon { color:var(--line); text-shadow:0 0 8px var(--line); }
+  button, input, select, textarea { font:inherit; color:var(--txt); }
+  button { background:transparent; border:2px solid var(--line); border-radius:999px; padding:9px 18px; cursor:pointer; font-weight:700; }
+  button:hover { background:rgba(0,255,136,.12); }
+  button.bad { border-color:var(--bad); color:var(--bad); }
+  button.small { padding:5px 12px; font-size:13px; }
+  button.on { background:rgba(0,255,136,.18); }
+  input[type=text], input[type=email], input[type=password], input[type=search], select, textarea {
+    width:100%; background:#050807; border:1px solid #1f3a2f; border-radius:12px; padding:10px 12px; outline:none; }
+  textarea { min-height:90px; resize:vertical; }
+  input:focus, textarea:focus, select:focus { border-color:var(--line); }
+  label { display:block; font-size:13px; color:var(--mute); margin:12px 0 5px; }
+  html, body { overflow-x:hidden; }
+  .card { max-width:100%; overflow:hidden; }
+  .switch { flex-wrap:nowrap; margin:0; }
+  .switch input { flex:none; }
+  .switch span { font-size:14px; color:var(--txt); }
+  .kcard .note { line-height:1.4; margin:4px 0 8px; }
+  .ksec { border-top:1px solid #14281f; margin-top:16px; padding-top:12px; }
+  .khead { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .khead b { font-size:14px; }
+  .krow2 { display:flex; gap:8px; align-items:center; margin-top:8px; }
+  .krow2 input { flex:1; min-width:0; }
+  button.x { flex:none; width:40px; height:40px; padding:0; border-color:var(--bad); color:var(--bad); font-size:18px; line-height:1; }
+  button.plus { width:100%; margin-top:10px; }
+  details.tk { border:1px solid #1f3a2f; border-radius:12px; padding:10px 12px; margin-top:10px; }
+  details.tk summary { cursor:pointer; font-weight:700; font-size:14px; }
+  details.tk .switch { margin-top:8px; }
+  .card { background:var(--card); border:1px solid #14281f; border-radius:16px; padding:16px; margin-bottom:14px; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .grow { flex:1; min-width:140px; }
+
+  #login { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; }
+  #login .box { width:100%; max-width:380px; text-align:center; }
+  #login .box > * { margin-top:14px; }
+  .err { color:var(--bad); font-size:14px; min-height:18px; }
+  .uid { user-select:text; -webkit-user-select:text; word-break:break-all; font-size:12px; color:var(--mute); }
+
+  header { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px 16px; border-bottom:1px solid #14281f; position:sticky; top:0; background:#000; z-index:5; }
+  nav { display:flex; gap:8px; overflow-x:auto; padding:12px 16px; border-bottom:1px solid #14281f; }
+  nav button { white-space:nowrap; padding:7px 16px; font-size:14px; }
+  nav button.on { background:rgba(0,255,136,.18); }
+  main { padding:16px; max-width:1100px; margin:0 auto; }
+
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:14px; }
+  .stat { background:var(--card); border:1px solid #14281f; border-radius:16px; padding:14px; }
+  .stat b { display:block; font-size:28px; color:var(--line); }
+  .stat span { color:var(--mute); font-size:13px; }
+
+  .tablewrap { overflow-x:auto; }
+  table { border-collapse:collapse; width:100%; font-size:14px; }
+  th, td { text-align:left; padding:9px 8px; border-bottom:1px solid #14281f; vertical-align:top; }
+  th { color:var(--mute); font-weight:600; font-size:12px; text-transform:uppercase; }
+  .tag { display:inline-block; font-size:11px; padding:2px 8px; border-radius:999px; border:1px solid #2a4a3c; color:var(--mute); }
+  .tag.bad { border-color:var(--bad); color:var(--bad); }
+  .tag.warn { border-color:#ffb84d; color:#ffb84d; }
+  .tag.good { border-color:var(--line); color:var(--line); }
+
+  .item { border-bottom:1px solid #14281f; padding:10px 2px; }
+  .item .meta { font-size:12px; color:var(--mute); margin-bottom:4px; }
+  .item .txt { white-space:pre-wrap; word-break:break-word; }
+  .chatcard { cursor:pointer; }
+  .chatcard:hover { background:rgba(0,255,136,.06); }
+
+  #modal { position:fixed; inset:0; background:rgba(0,0,0,.85); z-index:20; display:flex; align-items:flex-end; justify-content:center; }
+  #modal .sheet { width:100%; max-width:760px; max-height:90vh; background:#050807; border:1px solid var(--line); border-radius:20px 20px 0 0; display:flex; flex-direction:column; }
+  #modal .head { display:flex; justify-content:space-between; align-items:center; padding:14px 16px; border-bottom:1px solid #14281f; gap:10px; }
+  #modal .body { overflow:auto; padding:14px; }
+  .bub { max-width:88%; margin:8px 0; padding:10px 14px; border-radius:16px; white-space:pre-wrap; word-break:break-word; font-size:15px; }
+  .bub.user { margin-left:auto; border:1px solid var(--line); }
+  .bub.model { background:#0d1512; border:1px solid #1d3329; }
+  .bub small a { color:var(--line); cursor:pointer; text-decoration:underline; }
+  .bub small { display:block; color:var(--mute); font-size:11px; margin-top:6px; }
+
+  .switch { display:flex; align-items:center; gap:10px; }
+  .switch input { width:22px; height:22px; accent-color:var(--line); }
+  .chip { display:inline-flex; align-items:center; gap:8px; border:1px solid var(--line); border-radius:999px; padding:4px 6px 4px 12px; margin:4px 6px 0 0; font-size:13px; }
+  .chip button { padding:0 8px; border-width:1px; font-size:13px; }
+  .grid2 { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:0 14px; }
+  .note { color:var(--mute); font-size:13px; line-height:1.5; }
+  .who { display:flex; align-items:center; gap:10px; min-width:200px; }
+  .av { width:38px; height:38px; border-radius:50%; border:2px solid var(--line); display:flex; align-items:center; justify-content:center; font-weight:800; color:var(--line); flex:none; box-shadow:0 0 8px rgba(0,255,136,.35) inset; }
+  #verify { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; }
+  #verify .box { width:100%; max-width:400px; text-align:center; }
+  #verify .box > * { margin-top:14px; }
+
+  .fbcard { border-left:4px solid var(--line); }
+  .fbcard.dis { border-left-color:var(--bad); }
+  .fbcard .reason { font-size:16px; font-weight:700; margin:6px 0; word-break:break-word; white-space:pre-wrap; }
+  .fbcard details { margin-top:8px; }
+  .fbcard summary { cursor:pointer; color:var(--mute); font-size:13px; }
+  .fbcard .qa { white-space:pre-wrap; word-break:break-word; font-size:14px; margin-top:6px; padding:8px 10px; border-radius:10px; background:#050807; border:1px solid #14281f; }
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<div id="login">
+  <div class="box">
+    <h1 class="neon">ANKUSH AI</h1>
+    <div class="note">Admin Panel (sirf owner ke liye)</div>
+    <input id="em" type="email" placeholder="Admin email" autocomplete="username">
+    <input id="pw" type="password" placeholder="Password" autocomplete="current-password">
+    <button id="btnEmail" style="width:100%">LOGIN</button>
+    <button id="btnReset" class="small">PASSWORD BHOOL GAYE?</button>
+    <div id="googleWrap">
+      <div class="note">ya (sirf browser mein)</div>
+      <button id="btnGoogle" style="width:100%;margin-top:8px">GOOGLE SE LOGIN</button>
+    </div>
+    <div class="err" id="loginErr"></div>
+    <div class="note">Pehli baar: Firebase Console &gt; Authentication &gt; Users &gt; Add user se admin email aur password banao.</div>
+  </div>
+</div>
+
+<!-- ================= EMAIL VERIFY ================= -->
+<div id="verify" class="hidden">
+  <div class="box">
+    <h2 class="neon">EMAIL VERIFY KARO</h2>
+    <div class="note">Suraksha ke liye admin email verify hona zaroori hai. Ek baar verify karna hai.</div>
+    <button id="btnSendVerify" style="width:100%">VERIFICATION EMAIL BHEJO</button>
+    <button id="btnCheckVerify" style="width:100%">VERIFY KAR DIYA, CHECK KARO</button>
+    <button id="btnOut2" class="small">LOGOUT</button>
+    <div class="note" id="verMsg"></div>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="app" class="hidden">
+  <header>
+    <h2 class="neon">ANKUSH AI ADMIN</h2>
+    <div class="row"><span class="note" id="who"></span><button class="small" id="btnOut">LOGOUT</button></div>
+  </header>
+  <nav id="tabs">
+    <button data-t="dash" class="on">Dashboard</button>
+    <button data-t="users">Users</button>
+    <button data-t="chats">Chats</button>
+    <button data-t="fb">Feedback</button>
+    <button data-t="ctrl">Controls</button>
+    <button data-t="del">Deleted</button>
+    <button data-t="exp">Export</button>
+  </nav>
+
+  <main>
+    <div id="permBanner" class="card hidden" style="border-color:var(--bad)">
+      <b class="err">Permission nahi mili: aap abhi admin nahi pehchane gaye</b>
+      <div class="note" style="margin-top:8px">Ek baar ye karo: Firebase Console &gt; Realtime Database &gt; <b>Data</b> tab &gt; sabse upar wale naam par <b>+</b> dabao &gt; Name: <b>admins</b>, phir uske andar <b>+</b> dabao &gt; Name: <b>aapki UID</b> (neeche), Value: <b>true</b> &gt; Add. Phir ye page dobara kholo.</div>
+      <div class="note" style="margin-top:8px">Aapki UID (dabakar chuno aur copy karo):</div>
+      <div class="uid" id="permUid" style="font-size:15px;color:var(--line)"></div>
+      <div class="note" id="permWhy" style="margin-top:6px"></div>
+    </div>
+    <!-- Dashboard -->
+    <section id="t-dash">
+      <div class="stats">
+        <div class="stat"><b id="sUsers">-</b><span>Total users (email)</span></div>
+        <div class="stat"><b id="sQ">-</b><span>Total sawal</span></div>
+        <div class="stat"><b id="sActive">-</b><span>Aaj active (24 ghante)</span></div>
+        <div class="stat"><b id="sBlocked">-</b><span>Blocked</span></div>
+        <div class="stat"><b id="sLike">-</b><span>Like</span></div>
+        <div class="stat"><b id="sDislike" style="color:var(--bad)">-</b><span>Dislike</span></div>
+      </div>
+      <div class="card">
+        <div class="row" style="justify-content:space-between">
+          <h3>Live: log kya puch rahe hain</h3>
+          <label class="switch" style="margin:0"><input type="checkbox" id="showModel"> AI ke jawab bhi dikhao</label>
+        </div>
+        <div id="feed"></div>
+      </div>
+    </section>
+
+    <!-- Users -->
+    <section id="t-users" class="hidden">
+      <div class="card" id="limitBar">
+        <div class="row" style="justify-content:space-between">
+          <div class="grow"><b>Roz ki sawal limit (sab par)</b><div class="note" id="limitState">-</div></div>
+          <div class="row"><button id="btnLimitToggle">-</button><button class="small" id="btnLimitSet">LIMIT BADLO</button></div>
+        </div>
+        <div class="note" style="margin-top:8px">Limit server par ginti jaati hai, isliye app uninstall ya data clear karne se nahi hatti. Kisi ek user par alag limit ya "koi limit nahi" lagane ke liye uske saamne <b>Control</b> dabao. Din raat 12 baje (India samay) se badalta hai.</div>
+      </div>
+      <div class="card">
+        <input id="uSearch" type="search" placeholder="Email dhoondho...">
+        <div class="tablewrap" style="margin-top:10px">
+          <table>
+            <thead><tr><th>Email</th><th>Device</th><th>Pehli baar</th><th>Aakhri baar</th><th>Sawal</th><th>Aaj / Limit</th><th>Status</th><th></th></tr></thead>
+            <tbody id="uBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chats -->
+    <section id="t-chats" class="hidden">
+      <div class="card">
+        <div class="row">
+          <div class="grow"><label>Kis email ki chats</label><select id="chatEmail"></select></div>
+          <div class="grow"><label>Text dhoondho</label><input id="chatSearch" type="search" placeholder="koi shabd ya email"></div>
+          <button id="btnLoadChats" style="margin-top:22px">LOAD KARO</button>
+        </div>
+        <div class="note" style="margin-top:8px">"Sab" chunne par sabse naye 500 messages aate hain. Email chunne par us email ke 1500 tak.</div>
+      </div>
+      <div id="chatList"></div>
+    </section>
+
+    <!-- Feedback (like / dislike) -->
+    <section id="t-fb" class="hidden">
+      <div class="card">
+        <div class="row" style="justify-content:space-between">
+          <h3>Like / Dislike</h3>
+          <div class="row" id="fbFilter">
+            <button class="small on" data-f="all">Sab</button>
+            <button class="small" data-f="like">Like</button>
+            <button class="small bad" data-f="dislike">Dislike</button>
+          </div>
+        </div>
+        <div class="note" style="margin-top:6px">Kisne dabaya, kya kaaran diya, aur kis sawal-jawab par. Sabse naye sabse upar (aakhri 300).</div>
+      </div>
+      <div id="fbList"></div>
+    </section>
+
+    <!-- Controls -->
+    <section id="t-ctrl" class="hidden">
+      <div class="card">
+        <h3>App control</h3>
+        <label class="switch"><input type="checkbox" id="cfgEnabled"> App chalu hai (band karne par sabko maintenance screen dikhegi)</label>
+        <label>AI ka naam (app mein jahan bhi dikhta hai, khaali = Ankush AI)</label>
+        <input id="cfgAiName" type="text" placeholder="Ankush AI">
+        <label>Maintenance message</label>
+        <input id="cfgMaint" type="text" placeholder="App abhi band hai. Thodi der baad aao.">
+        <label>Announcement (sabko upar ek bar mein dikhega, khaali = koi nahi)</label>
+        <textarea id="cfgAnn" placeholder="Naya update aa gaya hai..."></textarea>
+        <label>AI ke liye extra niyam (PRIVATE: sirf aap padh sakte ho; proxy chalu ho to sirf server AI tak pahunchata hai)</label>
+        <textarea id="cfgExtra" placeholder="Jaise: Hamesha chhote jawab do."></textarea>
+        <div class="grid2">
+          <div><label>Har user ke liye roz ke sawal ki limit</label><input id="cfgLimit" type="number" min="0" placeholder="jaise 20"></div>
+          <div><label class="switch" style="margin-top:34px"><input type="checkbox" id="cfgLimitOn"> Sab par limit ON</label></div>
+          <div><label>Minimum app version code (isse purane ko update karna padega, 0 = koi nahi)</label><input id="cfgMinV" type="number" min="0" placeholder="0"></div>
+        </div>
+        <label>Limit poori hone par user ko ye message dikhe (khaali = app ka apna message)</label>
+        <input id="cfgLimitMsg" type="text" placeholder="Aaj ki limit poori ho gayi. Kal aao.">
+        <label>Update ka link (Play Store ya download link)</label>
+        <input id="cfgUpd" type="text" placeholder="https://...">
+        <label class="switch"><input type="checkbox" id="cfgAttach"> Attachments (+ button) chalu</label>
+        <label class="switch"><input type="checkbox" id="cfgVoice"> Voice (mic aur bolna) chalu</label>
+        <label class="switch"><input type="checkbox" id="cfgReqVer"> Sirf pakka (verified) Google login chalega, nakli email band</label>
+        <div class="row" style="margin-top:12px"><button id="btnForce" class="small bad">SABKO LOGOUT KARAO</button></div>
+        <label>Gemini models (comma se alag, pehla sabse pehle try hota hai, khaali = app wale)</label>
+        <input id="cfgModels" type="text" autocomplete="off" name="x_cfgModels" placeholder="gemini-3.5-flash-lite, gemini-3.7-flash">
+        <label>Live awaaz ka model (khaali = app wala)</label>
+        <input id="cfgLiveModel" type="text" autocomplete="off" name="x_cfgLiveModel" placeholder="gemini-3.8-live">
+        <label>Live awaaz ka naam (khaali = Charon)</label>
+        <input id="cfgLiveVoice" type="text" autocomplete="off" name="x_cfgLiveVoice" placeholder="Charon">
+        <label>Proxy (apna free Worker) ka address: bharte hi keys phone tak pahunchna band, sab kuch server se (khaali = seedha)</label>
+        <input id="cfgProxy" type="text" placeholder="https://ankush-ai.xxxx.workers.dev" autocomplete="off">
+        <label>Backup AI: API address (khaali chhodo to key se apne aap pata chalega: OpenRouter, Groq, Cerebras, DeepSeek, OpenAI)</label>
+        <input id="cfgAltBase" type="text" placeholder="https://openrouter.ai/api/v1" autocomplete="off">
+        <label>Backup AI: model ka naam (khaali = key se apne aap; OpenRouter ke liye qwen/qwen3-coder:free)</label>
+        <input id="cfgAltModel" type="text" placeholder="deepseek/deepseek-chat-v3.1:free" autocomplete="off">
+
+      </div>
+
+      <div class="card kcard">
+        <h3>API KEYS</h3>
+        <div class="note">Sirf aap dekh/badal sakte ho. Ek baar SAVE karne ke baad keys yahan har baar apne aap bhari milengi, dobara copy nahi karni. Key se provider apne aap pehchana jaata hai (AQ. = Gemini, sk-or- = OpenRouter, gsk_ = Groq, csk- = Cerebras, sk- = DeepSeek/OpenAI).</div>
+
+        <div class="ksec">
+          <div class="khead"><b>1. MUKHYA API</b><label class="switch"><input type="checkbox" id="cfgMainOn" checked><span>ON</span></label></div>
+          <div class="note">Sabse pehle yahi chalegi. OFF karoge to seedha backup se chalega.</div>
+          <div class="krow2"><input class="kin" data-k="apiKey" type="password" autocomplete="off" placeholder="AQ.Ab8..."><button class="x" type="button" data-delkey="apiKey" title="hatao">&#10005;</button></div>
+        </div>
+
+        <div class="ksec">
+          <div class="khead"><b>2. BACKUP API</b></div>
+          <div class="note">Mukhya thake ya band ho to ye line se chalengi. "+" dabao to ek aur dabba judega, &#10005; dabao to wo hat jaayegi.</div>
+          <div id="bkList"></div>
+          <button class="plus" id="btnBkAdd" type="button">+ ek aur BACKUP</button>
+        </div>
+
+        <div class="ksec">
+          <div class="khead"><b>3. ALAG ALAG KAAM KE LIYE ALAG API</b><label class="switch"><input type="checkbox" id="cfgTaskOn"><span>ON</span></label></div>
+          <div class="note">Abhi OFF rakho. ON karoge to neeche coding, photo aur live ke dabbe khulenge. Jis kaam ka tick ON ho aur key bhari ho, wahi key us kaam mein chalegi; warna upar wali normal keys hi chalengi.</div>
+          <div id="taskBody" class="hidden">
+            <details class="tk"><summary>CODING / APP / GAME</summary>
+              <div class="note">OpenRouter, Groq, Cerebras, DeepSeek ya OpenAI ki key (Gemini nahi).</div>
+              <label class="switch"><input type="checkbox" id="cfgCodeOn"><span>Coding ke liye alag API use karo</span></label>
+              <div class="krow2 kbox hidden" id="kbox_codeKey"><input class="kin" data-k="codeKey" type="password" autocomplete="off" placeholder="sk-or-... / sk-..."><button class="x" type="button" data-delkey="codeKey" title="hatao">&#10005;</button></div>
+            </details>
+            <details class="tk"><summary>PHOTO banana / edit karna</summary>
+              <div class="note">Gemini key (alag project ki). OFF ya khaali ho to AI bolega ki photo banana/edit abhi uplabdh nahi, baaki normal chat chalti rahegi.</div>
+              <label class="switch"><input type="checkbox" id="cfgImageOn"><span>Photo ke liye alag API use karo</span></label>
+              <div class="krow2 kbox hidden" id="kbox_imageKey"><input class="kin" data-k="imageKey" type="password" autocomplete="off" placeholder="AQ.Ab8..."><button class="x" type="button" data-delkey="imageKey" title="hatao">&#10005;</button></div>
+            </details>
+            <details class="tk"><summary>LIVE AWAAZ (orb)</summary>
+              <div class="note">Gemini key (alag project ki).</div>
+              <label class="switch"><input type="checkbox" id="cfgLiveOn"><span>Live awaaz ke liye alag API use karo</span></label>
+              <div class="krow2 kbox hidden" id="kbox_liveKey"><input class="kin" data-k="liveKey" type="password" autocomplete="off" placeholder="AQ.Ab8..."><button class="x" type="button" data-delkey="liveKey" title="hatao">&#10005;</button></div>
+            </details>
+          </div>
+        </div>
+
+        <button id="btnSaveKeys" style="width:100%;margin-top:6px">KEYS SAVE KARO</button>
+        <label class="switch" style="margin-top:12px"><input type="checkbox" id="showKeys"><span>keys dikhao</span></label>
+        <button class="small bad" id="btnDelAll" style="margin-top:10px">SAB KEYS HATAO</button>
+        <div class="note" id="keyState"></div>
+      </div>
+
+      <div class="card">
+        <h3>AI ka brain (nayi baatein sikhao)</h3>
+        <div class="note">Jo yahan likhoge AI use sach maanega aur jawab mein kaam lega (taaza 3500 akshar tak). Aap chat mein bhi bol sakte ho: "yaad rakho ...".</div>
+        <textarea id="brainNew" placeholder="Jaise: Meri YouTube series ka naam Hack Lab hai."></textarea>
+        <div class="row" style="margin-top:8px"><button id="btnBrainAdd" class="small">SIKHAO</button></div>
+        <div id="brainList" style="margin-top:10px"></div>
+      </div>
+
+      <div class="card">
+        <h3>Locked users (malik ko gaali dene wale)</h3>
+        <div class="note">AI ya app ne jise lock kiya wo yahan dikhega, uski maafi ke saath. "MAAF KIYA" dabane par uska app khul jaata hai. Haath se lock sirf pakke (verified) Google login wale par chalta hai.</div>
+        <div class="row" style="margin-top:8px"><input class="grow" id="lockEmail" type="email" placeholder="email@gmail.com"><button id="btnLock" class="small bad">LOCK KARO</button></div>
+        <div id="lockList" style="margin-top:10px"></div>
+      </div>
+
+      <div class="card">
+        <h3>Mere baare mein jaankari (AI isi se batata hai)</h3>
+        <div class="grid2">
+          <div><label>Poora naam</label><input id="p_name" type="text"></div>
+          <div><label>Online naam</label><input id="p_online" type="text"></div>
+          <div><label>Kahan rehte ho</label><input id="p_location" type="text"></div>
+          <div><label>YouTube (naam + link)</label><input id="p_youtube" type="text"></div>
+          <div><label>Telegram (username + link)</label><input id="p_telegram" type="text"></div>
+        </div>
+        <label>Skills aur ruchi</label><textarea id="p_skills"></textarea>
+        <label>Goals</label><textarea id="p_goals"></textarea>
+        <label>Motto</label><input id="p_motto" type="text">
+        <label>Kahani</label><textarea id="p_story"></textarea>
+        <label>Aur kuch jaankari (khuli likhai, jo marzi likho)</label><textarea id="p_extra"></textarea>
+        <div class="row" style="margin-top:12px"><button id="btnBuild" class="small">TEXT DEKHO (preview)</button><button id="btnDefault" class="small">PURANI JAANKARI "AUR KUCH" MEIN DAALO</button></div>
+        <div class="note">Email yahan mat likho. Likhoge bhi to app use hata deta hai aur AI kabhi email nahi batayega.</div>
+        <label>AI ko ye text jata hai (SAVE par apne aap banta hai)</label>
+        <textarea id="cfgOwner" readonly style="min-height:140px"></textarea>
+      </div>
+
+      <div class="card">
+        <h3>Malik ki pehchaan (owner email)</h3>
+        <div class="note">AI isi se pehchanta hai ki kaun malik hai. Email app ya database mein seedha nahi rakha jaata, sirf uska SHA-256 hash save hota hai, isliye koi nahi padh sakta. Malik wahi maana jayega jo is email se pakke (verified) Google login se aaya ho.</div>
+        <label>Malik ka email</label>
+        <input id="cfgOwnerEmail" type="text" placeholder="email@gmail.com" autocomplete="off">
+        <div class="note" id="ownerHashState" style="margin-top:6px"></div>
+        <div class="row" style="margin-top:8px"><button class="small bad" id="btnOwnerClear">OWNER EMAIL HATAO</button></div>
+      </div>
+
+      <div class="row"><button id="btnSaveCfg">SAVE KARO</button><span id="saveMsg" class="note"></span></div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>WORKER aur LOGIN ki nazar</h3>
+        <div class="note">Worker chal raha hai ya nahi: neeche "JANCHO" dabao. Jab bhi koi sawal poochta hai, Worker 20 second mein ek baar yahan apna "main zinda hoon" likhta hai.</div>
+        <div class="note" id="wkState">Abhi padha nahi.</div>
+        <button class="small" id="btnWk" type="button" style="margin-top:6px">JANCHO</button> <button class="small" id="btnSpeed" type="button" style="margin-top:6px">SPEED NAPO</button>
+        <div class="note" id="spState"></div>
+        <div class="ksec"><div class="khead"><b>Taaza logins</b></div>
+        <div class="note">Jo bhi ab login karega ya app kholega, yahan sabse upar aayega. Ye page khula ho to naye login par peela banner aur vibration bhi.</div>
+        <div id="loginList"></div></div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Blocked emails</h3>
+        <div class="row" style="margin-top:8px">
+          <input class="grow" id="blkEmail" type="email" placeholder="email@gmail.com">
+          <button id="btnBlock" class="small bad">BLOCK</button>
+        </div>
+        <div id="blkList" style="margin-top:8px"></div>
+      </div>
+    </section>
+
+    <!-- Deleted chats -->
+    <section id="t-del" class="hidden">
+      <div class="card">
+        <h3>User ne jo chats delete ki</h3>
+        <div class="note">Kaun tha, kis waqt mitayi, aur kya mitayi. Chat kholne ke liye dabao.</div>
+      </div>
+      <div id="delList"></div>
+    </section>
+
+    <!-- Export -->
+    <section id="t-exp" class="hidden">
+      <div class="card">
+        <h3>Export</h3>
+        <div class="row" style="margin-top:10px">
+          <button id="btnCsv">USERS CSV</button>
+          <button id="btnMsgJson">MESSAGES JSON (naye 5000)</button>
+          <button id="btnFbJson">FEEDBACK JSON</button>
+        </div>
+        <p class="note">Download seedhe aapke device mein hota hai.</p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- Conversation modal -->
+<div id="modal" class="hidden">
+  <div class="sheet">
+    <div class="head"><div><b id="mTitle"></b><div class="note" id="mSub"></div></div><button class="small" id="mClose">BAND</button></div>
+    <div class="body" id="mBody"></div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+/* ============ SETTINGS: yahan apni Firebase config paste karo ============ */
+const ADMIN_EMAIL = "ankushsingh85a@gmail.com";
+const firebaseConfig = {
+  apiKey: "AIzaSyDUFJfqXmuLOTLTaOkhWSpPqOK6IKybtnc",
+  authDomain: "ankush-aim-bot.firebaseapp.com",
+  databaseURL: "https://ankush-aim-bot-default-rtdb.firebaseio.com",
+  projectId: "ankush-aim-bot"
+};
+/* ======================================================================== */
+
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+const ek = (email) => email.toLowerCase().replace(/[.$#\[\]\/]/g, ",");
+const fmt = (t) => t ? new Date(t).toLocaleString("hi-IN") : "-";
+const short = (s, n) => (s || "").length > n ? s.slice(0, n) + "..." : (s || "");
+
+if (firebaseConfig.apiKey.startsWith("YAHAN")) {
+  $("#loginErr").textContent = "Pehle is file mein firebaseConfig bharo (SETUP.md dekho).";
+}
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+/* keyboard par email suggestion band: login ke alawa sab boxes par autofill off */
+document.querySelectorAll("input:not(#em):not(#pw), textarea, select").forEach(el => {
+  el.setAttribute("autocomplete", "off"); el.setAttribute("data-lpignore", "true");
+});
+
+let delRaw = [], delOpen = null;
+let usersRaw = {}, blocked = {}, agg = [], feed = [], chatMsgs = [], started = false;
+let fbRaw = [], fbFilter = "all";
+let cfgLive = {}, usageRaw = {}, userCfgRaw = {};
+const dayIdx = () => Math.floor((Date.now() + 19800000) / 86400000);   // India samay ka din
+function limitIsOn() { return cfgLive.limitOn === true || (cfgLive.limitOn == null && cfgLive.dailyLimit > 0); }
+function limitFor(email) {      // {n: limit (0 = koi nahi), own: true agar is user par alag}
+  const uc = userCfgRaw[ek(email)];
+  if (uc && uc.dailyLimit != null) return { n: uc.dailyLimit, own: true };
+  return { n: limitIsOn() ? (cfgLive.dailyLimit || 0) : 0, own: false };
+}
+function usedFor(a) {
+  const keys = [ek(a.email)].concat(a.uids || []);
+  let best = 0;
+  keys.forEach(k => { const u = usageRaw[k]; if (u && u.d === dayIdx() && u.n > best) best = u.n; });
+  return best;
+}
+function renderLimitBar() {
+  const on = limitIsOn();
+  $("#limitState").innerHTML = on
+    ? '<span class="tag">ON</span> har user ko roz <b>' + esc(cfgLive.dailyLimit || 0) + '</b> sawal'
+    : '<span class="tag warn">OFF</span> koi limit nahi (jab tak kisi user par alag limit na ho)';
+  $("#btnLimitToggle").textContent = on ? "SAB PAR LIMIT HATAO" : "SAB PAR LIMIT LAGAO";
+  $("#btnLimitToggle").classList.toggle("bad", on);
+}
+
+/* ---------- login ---------- */
+const isWebView = /; wv\)/.test(navigator.userAgent) || !!window.AndroidBridge;
+if (isWebView) $("#googleWrap").classList.add("hidden");   // WebView mein Google login nahi chalta
+
+function loginErr(e) {
+  const c = e && e.code;
+  const m = {
+    "auth/unauthorized-domain": "Is page ka domain (" + location.hostname + ") Firebase > Authentication > Settings > Authorized domains mein add karo.",
+    "auth/operation-not-allowed": "Firebase > Authentication > Sign-in method mein Email/Password (ya Google) enable karo.",
+    "auth/invalid-credential": "Email ya password galat hai. Firebase > Authentication > Users mein admin user banaya hai?",
+    "auth/wrong-password": "Password galat hai.",
+    "auth/user-not-found": "Is email ka user nahi hai. Firebase > Authentication > Users > Add user.",
+    "auth/invalid-email": "Email sahi likho.",
+    "auth/too-many-requests": "Bahut zyada koshish ho gayi. Thodi der baad try karo.",
+    "auth/network-request-failed": "Internet check karo."
+  };
+  const raw = (e && e.message) || String(e);
+  let txt = m[c];
+  if (!txt && /api key|blocked|referer|requests-from/i.test(c + " " + raw)) {
+    txt = "API key ki dikkat: Firebase Console > Project settings > Your apps mein Web app ki apiKey is file mein firebaseConfig.apiKey mein lagao (GUIDE ka Part 5 dekho). Code: " + (c || "-");
+  }
+  $("#loginErr").textContent = txt || (raw + (c ? "  [" + c + "]" : ""));
+}
+$("#btnEmail").onclick = () => {
+  $("#loginErr").textContent = "";
+  auth.signInWithEmailAndPassword($("#em").value.trim(), $("#pw").value).catch(loginErr);
+};
+$("#btnReset").onclick = () => {
+  const e = $("#em").value.trim();
+  if (!e) { $("#loginErr").textContent = "Pehle upar email likho."; return; }
+  auth.sendPasswordResetEmail(e).then(() => { $("#loginErr").textContent = "Password reset ka link email par bhej diya."; }).catch(loginErr);
+};
+$("#btnGoogle").onclick = () => {
+  const prov = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(prov).catch(e => {
+    if (e.code === "auth/popup-blocked" || e.code === "auth/cancelled-popup-request") auth.signInWithRedirect(prov);
+    else loginErr(e);
+  });
+};
+auth.getRedirectResult().catch(loginErr);
+$("#btnOut").onclick = () => auth.signOut();
+$("#btnOut2").onclick = () => auth.signOut();
+
+function showOnly(id) { ["login", "verify", "app"].forEach(x => $("#" + x).classList.toggle("hidden", x !== id)); }
+function showPerm(err) {
+  const u = auth.currentUser;
+  $("#permUid").textContent = u ? u.uid : "-";
+  $("#permWhy").textContent = err && err.message ? err.message : "";
+  $("#permBanner").classList.remove("hidden");
+}
+function enter(user) {
+  showOnly("app");
+  $("#who").innerHTML = esc(user.email) + '<div class="uid">UID: ' + esc(user.uid) + ' &middot; email verify: ' + (user.emailVerified ? "haan" : "nahi") + "</div>";
+  if (!started) { started = true; start(); }
+}
+auth.onAuthStateChanged((user) => {
+  if (!user) { showOnly("login"); return; }
+  if ((user.email || "").toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+    $("#loginErr").textContent = "Ye account admin nahi hai: " + user.email;
+    auth.signOut();
+    return;
+  }
+  enter(user);
+});
+$("#btnSendVerify").onclick = async () => {
+  try {
+    await auth.currentUser.sendEmailVerification();
+    $("#verMsg").textContent = "Verification email bhej diya (" + auth.currentUser.email + "). Gmail kholo (Spam bhi dekho), usme ka link dabao, phir upar CHECK KARO dabao.";
+  } catch (e) { $("#verMsg").textContent = e.message; }
+};
+$("#btnCheckVerify").onclick = async () => {
+  try {
+    const u = auth.currentUser;
+    await u.reload();
+    await u.getIdToken(true);
+    if (u.emailVerified) enter(u);
+    else $("#verMsg").textContent = "Abhi verify nahi hua. Gmail ka link dabao, phir dobara check karo.";
+  } catch (e) { $("#verMsg").textContent = e.message; }
+};
+
+/* ---------- tabs ---------- */
+$("#tabs").onclick = (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  document.querySelectorAll("#tabs button").forEach(x => x.classList.toggle("on", x === b));
+  ["dash", "users", "chats", "fb", "ctrl", "del", "exp"].forEach(t => $("#t-" + t).classList.toggle("hidden", t !== b.dataset.t));
+  if (b.dataset.t === "ctrl") loadControls();
+};
+
+/* ---------- data ---------- */
+function start() {
+  db.ref("config").on("value", s => { cfgLive = s.val() || {}; renderLimitBar(); renderUsers(); }, showPerm);
+  db.ref("usage").on("value", s => { usageRaw = s.val() || {}; renderUsers(); }, showPerm);
+  db.ref("userCfg").on("value", s => { userCfgRaw = s.val() || {}; renderUsers(); }, showPerm);
+  db.ref("users").on("value", s => { usersRaw = s.val() || {}; aggregate(); renderStats(); renderUsers(); fillEmailSelect(); }, showPerm);
+  db.ref("deletedChats").orderByChild("at").limitToLast(300).on("value", s => {
+    delRaw = []; s.forEach(c => { delRaw.push(Object.assign({ id: c.key }, c.val())); });
+    delRaw.sort((a, b) => (b.at || 0) - (a.at || 0)); renderDel();
+  }, err => { $("#delList").innerHTML = '<div class="err">Padh nahi sake: ' + esc(err.message) + ' (rules check karo)</div>'; showPerm(err); });
+  db.ref("brain").on("value", s => { brainRaw = s.val() || {}; renderBrain(); }, showPerm);
+  db.ref("locks").on("value", s => { locksRaw = s.val() || {}; renderLocks(); }, showPerm);
+  db.ref("blocked").on("value", s => { blocked = s.val() || {}; renderStats(); renderUsers(); renderBlocked(); }, showPerm);
+  db.ref("messages").orderByChild("t").limitToLast(100).on("value", s => {
+    feed = []; s.forEach(c => { feed.push(Object.assign({ id: c.key }, c.val())); });
+    feed.sort((a, b) => b.t - a.t); renderFeed();
+  }, err => { $("#feed").innerHTML = '<div class="err">Messages nahi padh sake: ' + esc(err.message) + ' (upar ka laal dabba dekho)</div>'; showPerm(err); });
+  db.ref("feedback").orderByChild("t").limitToLast(300).on("value", s => {
+    fbRaw = []; s.forEach(c => { fbRaw.push(Object.assign({ id: c.key }, c.val())); });
+    fbRaw.sort((a, b) => (b.t || 0) - (a.t || 0)); renderFb();
+  }, err => { $("#fbList").innerHTML = '<div class="err">Feedback nahi padh sake: ' + esc(err.message) + ' (firebase_rules.json mein feedback wala hissa Publish kiya?)</div>'; showPerm(err); });
+}
+
+function aggregate() {
+  const m = {};
+  Object.keys(usersRaw).forEach(uid => {
+    const u = usersRaw[uid] || {};
+    const e = (u.email || "(unknown)").toLowerCase();
+    const a = m[e] || (m[e] = { email: e, name: "", uids: [], devices: [], first: 0, last: 0, count: 0, src: u.src || "" });
+    if (u.name) a.name = u.name;
+    a.uids.push(uid);
+    if (u.device && a.devices.indexOf(u.device) < 0) a.devices.push(u.device);
+    if (u.firstSeen && (!a.first || u.firstSeen < a.first)) a.first = u.firstSeen;
+    if ((u.lastSeen || 0) > a.last) a.last = u.lastSeen;
+    a.count += u.msgCount || 0;
+    if (u.age) a.age = u.age;
+    if (u.src !== "verified") a.src = u.src || "typed";
+  });
+  agg = Object.keys(m).map(k => m[k]).sort((x, y) => y.last - x.last);
+}
+
+function renderStats() {
+  $("#sUsers").textContent = agg.length;
+  $("#sQ").textContent = agg.reduce((s, a) => s + a.count, 0);
+  $("#sActive").textContent = agg.filter(a => Date.now() - a.last < 86400000).length;
+  $("#sBlocked").textContent = Object.keys(blocked).length;
+}
+
+function renderFeed() {
+  const showModel = $("#showModel").checked;
+  const list = feed.filter(m => showModel || m.role === "user").slice(0, 60);
+  $("#feed").innerHTML = list.length ? list.map(m =>
+    '<div class="item"><div class="meta">' + esc(m.email) + ' &middot; ' + fmt(m.t) + ' &middot; <span class="tag">' + (m.role === "user" ? "sawal" : "AI jawab") + '</span></div>' +
+    '<div class="txt">' + esc(short(m.text, 400)) + '</div></div>').join("") : '<div class="note">Abhi koi message nahi.</div>';
+}
+$("#showModel").onchange = renderFeed;
+
+/* ---------- feedback (like / dislike) ---------- */
+function renderFb() {
+  const likes = fbRaw.filter(f => f.type === "like").length;
+  const dis = fbRaw.filter(f => f.type === "dislike").length;
+  $("#sLike").textContent = likes;
+  $("#sDislike").textContent = dis;
+  const list = fbRaw.filter(f => fbFilter === "all" || f.type === fbFilter);
+  $("#fbList").innerHTML = list.length ? list.map(f => {
+    const isDis = f.type === "dislike";
+    const who = f.name ? esc(f.name) + " &middot; " + esc(f.email) : esc(f.email);
+    return '<div class="card fbcard ' + (isDis ? "dis" : "") + '">' +
+      '<div class="row" style="justify-content:space-between"><div><span class="tag ' + (isDis ? "bad" : "good") + '">' + (isDis ? "DISLIKE" : "LIKE") + '</span> <b>' + who + '</b></div>' +
+      '<span class="note">' + fmt(f.t) + '</span></div>' +
+      (f.reason ? '<div class="reason">' + esc(f.reason) + '</div>' : '<div class="note" style="margin:6px 0">(kaaran nahi diya)</div>') +
+      '<details><summary>Sawal aur AI ka jawab dekho</summary>' +
+      '<div class="qa"><b>Sawal:</b>\n' + esc(f.q || "-") + '</div>' +
+      '<div class="qa"><b>AI ka jawab:</b>\n' + esc(f.a || "-") + '</div></details>' +
+      '<div class="row" style="margin-top:10px"><button class="small bad" data-a="fbdel" data-id="' + esc(f.id) + '">HATAO</button>' +
+      '<button class="small" data-a="fbuser" data-e="' + esc(f.email) + '">IS USER KI CHATS</button></div></div>';
+  }).join("") : '<div class="note">Abhi koi feedback nahi.</div>';
+}
+$("#fbFilter").onclick = (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  fbFilter = b.dataset.f;
+  document.querySelectorAll("#fbFilter button").forEach(x => x.classList.toggle("on", x === b));
+  renderFb();
+};
+$("#fbList").onclick = async (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  try {
+    if (b.dataset.a === "fbdel" && confirm("Ye feedback hata dun?")) await db.ref("feedback/" + b.dataset.id).remove();
+    if (b.dataset.a === "fbuser") {
+      document.querySelector('#tabs button[data-t="chats"]').click();
+      $("#chatEmail").value = b.dataset.e; loadChats();
+    }
+  } catch (err) { alert("Error: " + err.message); }
+};
+
+function renderUsers() {
+  const term = ($("#uSearch").value || "").toLowerCase();
+  const rows = agg.filter(a => !term || a.email.includes(term)).map(a => {
+    const isB = !!blocked[ek(a.email)];
+    const shown = a.name || a.email.split("@")[0];
+    const ini = esc((shown || "?").charAt(0).toUpperCase());
+    return "<tr><td><div class='who'><span class='av'>" + ini + "</span><div><b>" + esc(shown) + "</b>" + (a.src === "verified" ? ' <span class="tag">verified</span>' : ' <span class="tag warn">unverified</span>') +
+      "<div class='note'>" + esc(a.email) + (a.age ? " &middot; umar " + esc(a.age) : "") + "</div><div class='note'>ID: " + esc(a.uids.map(x => x.slice(0, 8)).join(", ")) + "</div></div></div></td>" +
+      "<td>" + esc(a.devices.join(", ")) + "</td><td>" + fmt(a.first) + "</td><td>" + fmt(a.last) + "</td><td>" + a.count + "</td>" +
+      "<td>" + (function () { const L = limitFor(a.email), u = usedFor(a); return "<b>" + u + "</b> / " + (L.n > 0 ? L.n : "bina limit") + (L.own ? ' <span class="tag warn">alag</span>' : ""); })() + "</td>" +
+      "<td>" + (isB ? '<span class="tag bad">blocked</span>' : '<span class="tag">ok</span>') + "</td>" +
+      '<td style="white-space:nowrap"><button class="small" data-a="chats" data-e="' + esc(a.email) + '">Chats</button> ' +
+      '<button class="small ' + (isB ? "" : "bad") + '" data-a="' + (isB ? "unblock" : "block") + '" data-e="' + esc(a.email) + '">' + (isB ? "Unblock" : "Block") + "</button> " +
+      '<button class="small" data-a="msg" data-e="' + esc(a.email) + '">Message</button> ' +
+      '<button class="small" data-a="ctl" data-e="' + esc(a.email) + '">Control</button> ' +
+      '<button class="small bad" data-a="del" data-e="' + esc(a.email) + '">Data hatao</button></td></tr>';
+  });
+  $("#uBody").innerHTML = rows.join("") || '<tr><td colspan="8" class="note">Koi user nahi.</td></tr>';
+}
+$("#uSearch").oninput = renderUsers;
+$("#btnLimitToggle").onclick = async () => {
+  try {
+    if (!limitIsOn()) {
+      let n = cfgLive.dailyLimit;
+      if (!(n > 0)) {
+        const t = prompt("Har user ko roz kitne sawal ki limit dun?", "20");
+        if (t === null) return;
+        n = parseInt(t, 10);
+        if (!(n > 0)) { alert("Sahi number likho (1 ya zyada)."); return; }
+      }
+      await db.ref("config").update({ limitOn: true, dailyLimit: n });
+    } else {
+      if (!confirm("Sab par se limit hata dun? (jinpar alag limit lagi hai, wo rahegi)")) return;
+      await db.ref("config").update({ limitOn: false });
+    }
+  } catch (e) { alert("Error: " + e.message); }
+};
+$("#btnLimitSet").onclick = async () => {
+  const t = prompt("Har user ke liye roz ke sawal ki nayi limit (sab par ON ho jayegi):", cfgLive.dailyLimit || "20");
+  if (t === null) return;
+  const n = parseInt(t, 10);
+  if (!(n > 0)) { alert("Sahi number likho (1 ya zyada)."); return; }
+  try { await db.ref("config").update({ limitOn: true, dailyLimit: n }); } catch (e) { alert("Error: " + e.message); }
+};
+$("#uBody").onclick = async (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  const email = b.dataset.e, a = b.dataset.a;
+  if (a === "chats") { document.querySelector('#tabs button[data-t="chats"]').click(); $("#chatEmail").value = email; loadChats(); }
+  if (a === "block") await db.ref("blocked/" + ek(email)).set(true);
+  if (a === "unblock") await db.ref("blocked/" + ek(email)).remove();
+  if (a === "msg") {
+    const t = prompt("Is user ko kya message bhejna hai? (khaali chhodoge to purana message hat jayega)");
+    if (t === null) return;
+    if (t.trim()) await db.ref("notices/" + ek(email)).set({ text: t.trim(), at: Date.now() }); else await db.ref("notices/" + ek(email)).remove();
+    alert("Ho gaya.");
+  }
+  if (a === "del") await deleteUserData(email);
+  if (a === "ctl") openUserCtl(email);
+};
+
+async function deleteUserData(email) {
+  if (!confirm(email + " ka saara data (users + messages) hamesha ke liye hata dun?")) return;
+  const snap = await db.ref("messages").orderByChild("email").equalTo(email).once("value");
+  const upd = {};
+  snap.forEach(c => { upd["messages/" + c.key] = null; });
+  const a = agg.find(x => x.email === email);
+  if (a) a.uids.forEach(uid => { upd["users/" + uid] = null; });
+  await db.ref().update(upd);
+  alert("Data hata diya gaya.");
+}
+
+/* ---------- deleted chats ---------- */
+function renderDel() {
+  $("#delList").innerHTML = delRaw.length ? delRaw.map((d, i) =>
+    '<div class="card chatcard" data-d="' + i + '"><div class="meta note">' + esc(d.email) + " &middot; delete kiya: " + fmt(d.at) + " &middot; " + (d.count || 0) + " messages</div>" +
+    "<b>" + esc(short(d.title || "(bina naam)", 90)) + "</b></div>").join("") : '<div class="note">Abhi kisi ne chat delete nahi ki.</div>';
+}
+$("#delList").onclick = (e) => {
+  const c = e.target.closest(".chatcard"); if (!c) return;
+  const d = delRaw[+c.dataset.d]; if (!d) return;
+  delOpen = d.id; stopLive();
+  $("#mTitle").textContent = short(d.title || "(bina naam)", 60);
+  $("#mSub").textContent = d.email + " - " + fmt(d.at) + " ko delete hui";
+  const ms = Array.isArray(d.msgs) ? d.msgs : Object.keys(d.msgs || {}).map(k => d.msgs[k]);
+  $("#mBody").innerHTML = '<div class="row" style="margin-bottom:8px"><button class="small bad" data-m="deldel">YE RECORD HATAO</button></div>' +
+    ms.map(m => '<div class="bub ' + (m.role === "user" ? "user" : "model") + '">' + esc(m.text) + "</div>").join("");
+  $("#modal").classList.remove("hidden");
+};
+
+/* ---------- chats ---------- */
+function fillEmailSelect() {
+  const cur = $("#chatEmail").value;
+  $("#chatEmail").innerHTML = '<option value="">Sab</option>' + agg.map(a => '<option value="' + esc(a.email) + '">' + esc(a.email) + "</option>").join("");
+  $("#chatEmail").value = cur;
+}
+$("#btnLoadChats").onclick = loadChats;
+$("#chatSearch").oninput = renderChats;
+
+async function loadChats() {
+  const email = $("#chatEmail").value;
+  let q = db.ref("messages");
+  q = email ? q.orderByChild("email").equalTo(email).limitToLast(1500) : q.orderByChild("t").limitToLast(500);
+  $("#chatList").innerHTML = '<div class="note">Load ho raha hai...</div>';
+  try {
+    const snap = await q.once("value");
+    chatMsgs = []; snap.forEach(c => { chatMsgs.push(Object.assign({ id: c.key }, c.val())); });
+    chatMsgs.sort((a, b) => a.t - b.t);
+    renderChats();
+  } catch (e) { $("#chatList").innerHTML = '<div class="err">' + esc(e.message) + "</div>"; }
+}
+
+let groupsCache = [];
+function renderChats() {
+  const term = ($("#chatSearch").value || "").toLowerCase();
+  const g = {};
+  chatMsgs.forEach(m => { const k = (m.email || "") + "|" + (m.chat || "-"); (g[k] = g[k] || []).push(m); });
+  let list = Object.keys(g).map(k => {
+    const msgs = g[k];
+    return { k: k, msgs: msgs, last: msgs[msgs.length - 1].t, first: msgs.find(x => x.role === "user") || msgs[0] };
+  });
+  if (term) list = list.filter(x => x.msgs.some(m => (m.text || "").toLowerCase().includes(term) || (m.email || "").includes(term)));
+  list.sort((a, b) => b.last - a.last);
+  groupsCache = list;
+  $("#chatList").innerHTML = list.length ? list.map((x, i) =>
+    '<div class="card chatcard" data-i="' + i + '"><div class="meta note">' + esc(x.first.email) + " &middot; " + fmt(x.last) + " &middot; " + x.msgs.length + " messages</div>" +
+    "<b>" + esc(short(x.first.text, 90)) + "</b></div>").join("") : '<div class="note">Koi chat nahi mili.</div>';
+}
+$("#chatList").onclick = (e) => {
+  const c = e.target.closest(".chatcard"); if (!c) return;
+  openConv(groupsCache[+c.dataset.i]);
+};
+let liveQ = null, liveCb = null, liveKey = null, liveMsgs = [];
+function stopLive() { if (liveQ && liveCb) liveQ.off("value", liveCb); liveQ = liveCb = liveKey = null; }
+function closeModal() { stopLive(); $("#modal").classList.add("hidden"); }
+$("#mClose").onclick = closeModal;
+function renderConv() {
+  const b = $("#mBody"), st = b.scrollTop;
+  $("#mSub").textContent = liveKey.email + " - " + liveMsgs.length + " messages (live)";
+  b.innerHTML = '<div class="row" style="margin-bottom:8px"><button class="small bad" data-m="delchat">POORI CHAT HATAO</button></div>' +
+    liveMsgs.map(m => '<div class="bub ' + (m.role === "user" ? "user" : "model") + '">' + esc(m.text) + "<small>" + fmt(m.t) +
+      ' &middot; <a data-m="edit" data-id="' + esc(m.id) + '">EDIT</a> &middot; <a data-m="del" data-id="' + esc(m.id) + '">HATAO</a></small></div>').join("");
+  b.scrollTop = st;
+}
+function openConv(x) {
+  stopLive();
+  liveKey = { email: x.first.email, chat: x.first.chat || "-" };
+  $("#mTitle").textContent = short(x.first.text, 60);
+  liveMsgs = x.msgs.slice();
+  renderConv();
+  $("#modal").classList.remove("hidden");
+  liveQ = db.ref("messages").orderByChild("email").equalTo(x.first.email).limitToLast(1500);
+  liveCb = (s) => {
+    const arr = [];
+    s.forEach(c => { const v = c.val(); if ((v.chat || "-") === liveKey.chat) arr.push(Object.assign({ id: c.key }, v)); });
+    arr.sort((p, q) => p.t - q.t); liveMsgs = arr; renderConv();
+  };
+  liveQ.on("value", liveCb);
+}
+$("#mBody").onclick = async (e) => {
+  const a = e.target.closest("[data-m]"); if (!a) return;
+  try {
+    if (a.dataset.m === "deldel" && delOpen && confirm("Ye delete-record admin se bhi hata dun?")) { await db.ref("deletedChats/" + delOpen).remove(); closeModal(); return; }
+    if (a.dataset.m === "del" && confirm("Ye message server se hata dun?")) await db.ref("messages/" + a.dataset.id).remove();
+    if (a.dataset.m === "edit") {
+      const m = liveMsgs.find(z => z.id === a.dataset.id);
+      const t = prompt("Naya text (sirf server ki copy badlegi, user ke phone ki nahi)", m ? m.text : "");
+      if (t !== null && t.trim()) await db.ref("messages/" + a.dataset.id + "/text").set(t);
+    }
+    if (a.dataset.m === "delchat" && confirm("Poori chat server se aur user ke phone se bhi hata dun?")) {
+      const lk = liveKey;
+      const u = {}; liveMsgs.forEach(z => { u["messages/" + z.id] = null; });
+      if (lk && lk.chat && lk.chat !== "-") u["userCfg/" + ek(lk.email) + "/deletedChats/" + lk.chat] = Date.now();
+      await db.ref().update(u);
+    }
+  } catch (err) { alert("Error: " + err.message); }
+};
+async function openUserCtl(email) {
+  stopLive();
+  const k = ek(email);
+  const c = (await db.ref("userCfg/" + k).once("value")).val() || {};
+  $("#mTitle").textContent = "User control";
+  $("#mSub").textContent = email;
+  $("#mBody").innerHTML =
+    '<label>Is user par roz ki limit</label><select id="uc_mode"><option value="same">Sabke jaisa (jo sab par lagi hai)</option><option value="none">Koi limit nahi (sirf is user par hatao)</option><option value="custom">Alag limit (neeche number likho)</option></select>' +
+    '<input id="uc_lim" type="number" min="1" placeholder="roz ke sawal" value="' + esc(c.dailyLimit > 0 ? c.dailyLimit : "") + '" style="margin-top:8px">' +
+    '<div class="row" style="margin-top:8px"><span class="note" id="uc_used"></span><button class="small bad" id="ucReset">AAJ KA COUNT ZERO KARO</button></div>' +
+    '<label class="switch"><input type="checkbox" id="uc_att"' + (c.allowAttach === false ? "" : " checked") + '> Attachments chalu</label>' +
+    '<label class="switch"><input type="checkbox" id="uc_voice"' + (c.allowVoice === false ? "" : " checked") + '> Voice chalu</label>' +
+    '<label>Sirf is user ke liye AI ke extra niyam</label><textarea id="uc_extra">' + esc(c.extraPrompt || "") + '</textarea>' +
+    '<div class="row" style="margin-top:12px"><button id="ucSave">SAVE</button><button id="ucOut" class="small bad">IS USER KO LOGOUT KARAO</button><button id="ucWipe" class="small bad">USKE PHONE KI SAARI CHATS MITAO</button></div><div class="note" id="ucMsg"></div>';
+  $("#modal").classList.remove("hidden");
+  $("#uc_mode").value = c.dailyLimit == null ? "same" : (c.dailyLimit === 0 ? "none" : "custom");
+  const ag = agg.find(x => x.email === email);
+  $("#uc_used").textContent = "Aaj ke sawal: " + (ag ? usedFor(ag) : 0);
+  $("#ucReset").onclick = async () => {
+    if (!confirm(email + " ka aaj ka count zero kar dun?")) return;
+    try {
+      const keys = [k].concat(ag ? ag.uids : []);
+      const u = {}; keys.forEach(x => { u["usage/" + x] = { d: dayIdx(), n: 0 }; });
+      await db.ref().update(u);
+      $("#ucMsg").textContent = "Count zero ho gaya.";
+    } catch (err) { $("#ucMsg").textContent = "Error: " + err.message; }
+  };
+  $("#ucSave").onclick = async () => {
+    try {
+      const md = $("#uc_mode").value, lv = parseInt($("#uc_lim").value, 10);
+      if (md === "custom" && !(lv > 0)) { $("#ucMsg").textContent = "Alag limit ke liye 1 ya zyada number likho."; return; }
+      await db.ref("userCfg/" + k).update({
+        dailyLimit: md === "same" ? null : (md === "none" ? 0 : lv),
+        allowAttach: $("#uc_att").checked ? null : false,
+        allowVoice: $("#uc_voice").checked ? null : false,
+        extraPrompt: nz($("#uc_extra").value)
+      });
+      $("#ucMsg").textContent = "Save ho gaya (user ke app mein ~1 minute mein lagega).";
+    } catch (err) { $("#ucMsg").textContent = "Error: " + err.message; }
+  };
+  $("#ucWipe").onclick = async () => {
+    if (!confirm(email + " ke phone se saari chats mita dun? (jab wo app kholega)")) return;
+    await db.ref("userCfg/" + k + "/wipeAt").set(Date.now());
+    $("#ucMsg").textContent = "Order bhej diya: uske app kholte hi saari chats hat jayengi.";
+  };
+  $("#ucOut").onclick = async () => {
+    if (!confirm(email + " ko logout karwa dun?")) return;
+    await db.ref("userCfg/" + k + "/logoutAt").set(Date.now());
+    $("#ucMsg").textContent = "Logout ka order bhej diya.";
+  };
+}
+
+/* ---------- controls ---------- */
+async function loadControls() {
+  const s = await db.ref("config").once("value");
+  const c = s.val() || {};
+  $("#cfgEnabled").checked = c.appEnabled !== false;
+  $("#cfgMaint").value = c.maintenanceMsg || "";
+  $("#cfgAiName").value = c.aiName || "";
+  $("#cfgAnn").value = c.announcement || "";
+  let pv = {}; try { pv = (await db.ref("private").once("value")).val() || {}; } catch (e) {}
+  $("#cfgExtra").value = pv.extraPrompt || c.extraPrompt || "";
+  $("#cfgMainOn").checked = c.mainOn !== false; $("#cfgTaskOn").checked = c.taskApi === true;
+  $("#cfgCodeOn").checked = c.codeOn === true;
+  $("#cfgImageOn").checked = c.imageOn === true; $("#cfgLiveOn").checked = c.liveOn === true; try { syncTaskBoxes(); } catch (e) {}
+  $("#cfgModels").value = /^(AQ\.|AIza)/.test(c.models || "") ? "" : (c.models || "");
+  $("#cfgLiveModel").value = /^(AQ\.|AIza)/.test(c.liveModel || "") ? "" : (c.liveModel || "");
+  $("#cfgLiveVoice").value = c.liveVoice || "";
+  $("#cfgProxy").value = c.proxyUrl || "";
+  $("#cfgAltBase").value = c.altBase || "";
+  loadSecrets();
+  if (!window._wl) { window._wl = 1; try { watchLogins(); } catch (e) {} }
+  $("#cfgAltModel").value = c.altModel || "";
+  $("#cfgLimit").value = c.dailyLimit || "";
+  $("#cfgLimitOn").checked = c.limitOn === true || (c.limitOn == null && c.dailyLimit > 0);
+  $("#cfgLimitMsg").value = c.limitMsg || "";
+  $("#cfgMinV").value = c.minVersion || "";
+  $("#cfgUpd").value = c.updateUrl || "";
+  $("#cfgAttach").checked = c.allowAttach !== false;
+  $("#cfgVoice").checked = c.allowVoice !== false;
+  $("#cfgReqVer").checked = c.requireVerified === true;
+  let of = {};
+  try { of = JSON.parse(c.ownerFields || "{}"); } catch (e) { of = {}; }
+  if (!c.ownerFields && c.ownerInfo) of.extra = c.ownerInfo;
+  OWNER_IDS.forEach(k => { $("#p_" + k).value = of[k] || ""; });
+  $("#cfgOwner").value = c.ownerInfo || "";
+  $("#cfgOwnerEmail").value = "";
+  ownerHashLive = c.ownerEmailHash || "";
+  $("#ownerHashState").textContent = ownerHashLive ? "Owner email set hai (hash save hai). Badalna ho to naya email likhkar SAVE dabao." : "Abhi owner email set nahi hai: AI abhi kisi ko malik nahi manega.";
+}
+let ownerHashLive = "";
+/* chhota SHA-256 (WebView mein crypto.subtle na ho to bhi chale) */
+function sha256hex(str) {
+  const K = [0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+  const bytes = Array.from(new TextEncoder().encode(str));
+  const l = bytes.length * 8;
+  bytes.push(0x80);
+  while (bytes.length % 64 !== 56) bytes.push(0);
+  for (let i = 7; i >= 0; i--) bytes.push(i >= 4 ? 0 : (l >>> (i * 8)) & 0xff);
+  let H = [0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+  const rr = (x, n) => (x >>> n) | (x << (32 - n));
+  for (let o = 0; o < bytes.length; o += 64) {
+    const w = new Array(64);
+    for (let i = 0; i < 16; i++) w[i] = (bytes[o+i*4] << 24) | (bytes[o+i*4+1] << 16) | (bytes[o+i*4+2] << 8) | bytes[o+i*4+3];
+    for (let i = 16; i < 64; i++) {
+      const s0 = rr(w[i-15],7) ^ rr(w[i-15],18) ^ (w[i-15] >>> 3), s1 = rr(w[i-2],17) ^ rr(w[i-2],19) ^ (w[i-2] >>> 10);
+      w[i] = (w[i-16] + s0 + w[i-7] + s1) | 0;
+    }
+    let [a,b,c,d,e,f,g,hh] = H;
+    for (let i = 0; i < 64; i++) {
+      const S1 = rr(e,6) ^ rr(e,11) ^ rr(e,25), ch = (e & f) ^ (~e & g), t1 = (hh + S1 + ch + K[i] + w[i]) | 0;
+      const S0 = rr(a,2) ^ rr(a,13) ^ rr(a,22), mj = (a & b) ^ (a & c) ^ (b & c), t2 = (S0 + mj) | 0;
+      hh = g; g = f; f = e; e = (d + t1) | 0; d = c; c = b; b = a; a = (t1 + t2) | 0;
+    }
+    H = [H[0]+a|0,H[1]+b|0,H[2]+c|0,H[3]+d|0,H[4]+e|0,H[5]+f|0,H[6]+g|0,H[7]+hh|0];
+  }
+  return H.map(x => (x >>> 0).toString(16).padStart(8, "0")).join("");
+}
+$("#btnOwnerClear").onclick = async () => {
+  if (!confirm("Owner email hata dun? Phir AI kisi ko bhi malik nahi manega.")) return;
+  try { await db.ref("config/ownerEmailHash").remove(); ownerHashLive = ""; $("#ownerHashState").textContent = "Hata diya."; } catch (e) { $("#ownerHashState").textContent = "Error: " + e.message; }
+};
+const num = (v) => { v = parseInt(v, 10); return isFinite(v) && v > 0 ? v : null; };
+const nz = (v) => { v = (v || "").trim(); return v ? v : null; };
+$("#btnSaveCfg").onclick = async () => {
+  try {
+    await db.ref("config").update({
+      appEnabled: $("#cfgEnabled").checked,
+      maintenanceMsg: nz($("#cfgMaint").value),
+      aiName: nz($("#cfgAiName").value),
+      announcement: nz($("#cfgAnn").value),
+      extraPrompt: null,
+      mainOn: $("#cfgMainOn").checked, taskApi: $("#cfgTaskOn").checked,
+      codeOn: $("#cfgCodeOn").checked,
+      imageOn: $("#cfgImageOn").checked, liveOn: $("#cfgLiveOn").checked,
+      models: nz($("#cfgModels").value),
+      apiKey2: null,
+      liveModel: nz($("#cfgLiveModel").value),
+      liveVoice: nz($("#cfgLiveVoice").value),
+      proxyUrl: nz($("#cfgProxy").value),
+      altBase: nz($("#cfgAltBase").value),
+      altKey: null,
+      altModel: nz($("#cfgAltModel").value),
+      dailyLimit: num($("#cfgLimit").value),
+      limitOn: $("#cfgLimitOn").checked,
+      limitMsg: nz($("#cfgLimitMsg").value),
+      minVersion: num($("#cfgMinV").value),
+      updateUrl: nz($("#cfgUpd").value),
+      allowAttach: $("#cfgAttach").checked,
+      allowVoice: $("#cfgVoice").checked,
+      requireVerified: $("#cfgReqVer").checked,
+      geminiKey: null,
+      ownerInfo: nz(ownerText(ownerObj())),
+      ownerFields: Object.keys(ownerObj()).length ? JSON.stringify(ownerObj()) : null,
+      ownerEmailHash: ($("#cfgOwnerEmail").value.trim() ? sha256hex($("#cfgOwnerEmail").value.trim().toLowerCase()) : (ownerHashLive || null))
+    });
+    if ($("#cfgOwnerEmail").value.trim()) { ownerHashLive = sha256hex($("#cfgOwnerEmail").value.trim().toLowerCase()); $("#cfgOwnerEmail").value = ""; $("#ownerHashState").textContent = "Owner email set ho gaya (hash save)."; }
+    $("#cfgOwner").value = ownerText(ownerObj());
+    await db.ref("private").update({ extraPrompt: nz($("#cfgExtra").value) });
+    $("#saveMsg").textContent = "Save ho gaya: " + new Date().toLocaleTimeString("hi-IN");
+  } catch (e) { $("#saveMsg").textContent = "Error: " + e.message; }
+};
+$("#btnForce").onclick = async () => {
+  if (!confirm("Sabhi users ko logout karwa dun? Wo dobara sign in karenge.")) return;
+  await db.ref("config/forceLogoutAt").set(Date.now());
+  $("#saveMsg").textContent = "Sabko logout ka order bhej diya.";
+};
+const DEFAULT_OWNER = "Poora naam Ankush Singh. Online pehchaan Ankush Hacker. Bhasha Hindi. Desh India, rajya Uttar Pradesh. Wo Digital Creator hain aur Gaming tatha Technology ke shaukeen hain. Ruchi: Android Development, Coding, HTML aur Web Designing, Gaming, Modding, App Customization, Graphic Designing, Digital Content Creation. YouTube channel Ankush Hacker (@AnkushHackerJi, https://www.youtube.com/@AnkushHackerJi). Telegram @AnkushHackerJi (https://t.me/+QMp0wtrZsvMzZTI1). Goals: apni alag digital pehchaan banana, nayi technology seekhna, YouTube channel badhana, apne Android Apps aur websites banana. Motto: Never Stop Learning, Never Stop Growing. Line: Abhi shuruaat hai, manzil abhi baaki hai!";
+$("#btnDefault").onclick = () => { $("#p_extra").value = DEFAULT_OWNER; $("#cfgOwner").value = ownerText(ownerObj()); };
+const OWNER_IDS = ["name", "online", "location", "skills", "youtube", "telegram", "goals", "motto", "story", "extra"];
+const MAIL_RE = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
+function ownerObj() { const o = {}; OWNER_IDS.forEach(k => { const v = $("#p_" + k).value.replace(MAIL_RE, "").trim(); if (v) o[k] = v; }); return o; }
+function ownerText(o) {
+  const p = [];
+  if (o.name) p.push("Poora naam " + o.name + ".");
+  if (o.online) p.push("Online pehchaan " + o.online + ".");
+  if (o.location) p.push("Rehte hain: " + o.location + ".");
+  if (o.skills) p.push("Skills aur ruchi: " + o.skills + ".");
+  if (o.youtube) p.push("YouTube: " + o.youtube + ".");
+  if (o.telegram) p.push("Telegram: " + o.telegram + ".");
+  if (o.goals) p.push("Goals: " + o.goals + ".");
+  if (o.motto) p.push("Motto: " + o.motto + ".");
+  if (o.story) p.push("Kahani: " + o.story);
+  if (o.extra) p.push(o.extra);
+  return p.join(" ");
+}
+$("#btnBuild").onclick = () => { $("#cfgOwner").value = ownerText(ownerObj()); };
+
+function renderBlocked() {
+  const keys = Object.keys(blocked);
+  $("#blkList").innerHTML = keys.length ? keys.map(k => {
+    const email = k.replace(/,/g, ".");
+    return '<span class="chip">' + esc(email) + ' <button data-k="' + esc(k) + '">hatao</button></span>';
+  }).join("") : '<span class="note">Koi blocked nahi.</span>';
+}
+$("#blkList").onclick = (e) => { const b = e.target.closest("button"); if (b) db.ref("blocked/" + b.dataset.k).remove(); };
+$("#btnBlock").onclick = async () => {
+  const e = $("#blkEmail").value.trim().toLowerCase();
+  if (!e) return;
+  await db.ref("blocked/" + ek(e)).set(true);
+  $("#blkEmail").value = "";
+};
+
+/* ---------- API keys (Firebase `secrets`) ---------- */
+const kinEl = (k) => document.querySelector('.kin[data-k="' + k + '"]');
+function syncTaskBoxes() {
+  [["codeKey","cfgCodeOn"],["imageKey","cfgImageOn"],["liveKey","cfgLiveOn"]].forEach(p => { $("#kbox_" + p[0]).classList.toggle("hidden", !$("#" + p[1]).checked); });
+  $("#taskBody").classList.toggle("hidden", !$("#cfgTaskOn").checked);
+}
+["cfgCodeOn","cfgImageOn","cfgLiveOn","cfgTaskOn"].forEach(id => { $("#" + id).onchange = syncTaskBoxes; });
+function addBkRow(v) {
+  const d = document.createElement("div"); d.className = "krow2 bkrow";
+  const i = document.createElement("input"); i.className = "bkin"; i.type = $("#showKeys").checked ? "text" : "password"; i.autocomplete = "off"; i.placeholder = "koi bhi API key"; i.value = v || "";
+  const x = document.createElement("button"); x.type = "button"; x.className = "x"; x.innerHTML = "&#10005;"; x.title = "hatao";
+  x.onclick = () => { if (!i.value || confirm("Ye backup key hata dun? (KEYS SAVE dabane par pakka hoga)")) d.remove(); };
+  d.appendChild(i); d.appendChild(x); $("#bkList").appendChild(d);
+}
+$("#btnBkAdd").onclick = () => addBkRow("");
+function bkValues() { return [...document.querySelectorAll(".bkin")].map(i => nz(i.value)).filter(Boolean); }
+async function loadSecrets() {
+  try {
+    const s = (await db.ref("secrets").once("value")).val() || {};
+    document.querySelectorAll(".kin").forEach(i => { i.value = s[i.dataset.k] || ""; });
+    $("#bkList").innerHTML = "";
+    const bl = [s.apiKey2, s.altKey, s.altKey2];
+    if (s.backups) (Array.isArray(s.backups) ? s.backups : Object.keys(s.backups).sort().map(n => s.backups[n])).forEach(v => bl.push(v));
+    const seen = []; bl.forEach(v => { if (v && !seen.includes(v)) seen.push(v); });
+    seen.forEach(addBkRow);
+    if (!seen.length) addBkRow("");
+    const n = Object.keys(s).filter(k => s[k] && k !== "backups").length + seen.length - [s.apiKey2, s.altKey, s.altKey2].filter(Boolean).length;
+    $("#keyState").textContent = n ? n + " key set hain." : "Abhi koi key nahi.";
+    syncTaskBoxes();
+  } catch (e) { $("#keyState").textContent = "Padh nahi sake: " + e.message + " (rules publish karo)"; }
+}
+$("#showKeys").onchange = (e) => { document.querySelectorAll(".kin,.bkin").forEach(i => i.type = e.target.checked ? "text" : "password"); };
+$("#btnSaveKeys").onclick = async () => {
+  try {
+    const o = {};
+    document.querySelectorAll(".kin").forEach(i => { o[i.dataset.k] = nz(i.value); });
+    o.apiKey2 = null; o.altKey = null; o.altKey2 = null;
+    const bv = bkValues(); o.backups = bv.length ? bv : null;
+    await db.ref("secrets").update(o);
+    await db.ref("config").update({ apiKey2: null, altKey: null, geminiKey: null, extraBackup: null, mainOn: $("#cfgMainOn").checked, taskApi: $("#cfgTaskOn").checked, codeOn: $("#cfgCodeOn").checked, imageOn: $("#cfgImageOn").checked,
+      liveOn: $("#cfgLiveOn").checked });
+    $("#keyState").textContent = "Keys save ho gayi: " + new Date().toLocaleTimeString("hi-IN");
+  } catch (e) { $("#keyState").textContent = "Error: " + e.message; }
+};
+async function delKeys(list) {
+  try {
+    for (const k of list) { await db.ref("secrets/" + k).remove(); const i = kinEl(k); if (i) i.value = ""; if (k === "backups") { $("#bkList").innerHTML = ""; addBkRow(""); } }
+    $("#keyState").textContent = list.length + " key hata di.";
+  } catch (e) { $("#keyState").textContent = "Error: " + e.message; }
+}
+document.querySelectorAll("[data-delkey]").forEach(b => b.onclick = () => { if (confirm("Ye key hata dun?")) delKeys([b.dataset.delkey]); });
+$("#btnDelAll").onclick = () => {
+  if (confirm("SAARI keys hata dun? AI chalna band ho jayega jab tak nayi na daalo.") && confirm("Pakka? Ye wapas nahi aayengi.")) delKeys(["apiKey", "apiKey2", "altKey", "altKey2", "backups", "codeKey", "imageKey", "liveKey"]);
+};
+
+
+/* ---------- Worker nazar + taaza logins ---------- */
+function ago(ms) { const s = Math.max(0, Math.round((Date.now() - ms) / 1000)); return s < 60 ? s + " second pehle" : s < 3600 ? Math.round(s / 60) + " minute pehle" : s < 86400 ? Math.round(s / 3600) + " ghante pehle" : Math.round(s / 86400) + " din pehle"; }
+let wkSeen = null;
+function wkText() {
+  if (!wkSeen) return "Abhi tak Worker ne koi request nahi likhi. App mein ek sawal poochkar phir JANCHO dabao.";
+  const live = Date.now() - wkSeen.t < 120000;
+  return (live ? "WORKER CHALU HAI. " : "Aakhri request: ") + ago(wkSeen.t) + " (" + (wkSeen.who || "?") + ", " + (wkSeen.path || "") + ")";
+}
+async function pingWk() {
+  const u = ($("#cfgProxy").value || "").trim().replace(/\/+$/, "");
+  let reach = "";
+  if (u) { try { await fetch(u + "/", { mode: "no-cors", cache: "no-store" }); reach = "Address khul raha hai. "; } catch (e) { reach = "Address NAHI khul raha (net ya galat naam). "; } }
+  else reach = "Proxy ka address abhi bhara nahi. ";
+  try { wkSeen = (await db.ref("stats/worker").once("value")).val(); } catch (e) { $("#wkState").textContent = reach + "Padh nahi sake: " + e.message + " (rules publish karo)"; return; }
+  $("#wkState").textContent = reach + wkText();
+}
+$("#btnWk").onclick = pingWk;
+let loginFirst = true, loginSeen = {};
+function watchLogins() {
+  db.ref("users").orderByChild("lastSeen").limitToLast(15).on("value", (snap) => {
+    const rows = []; snap.forEach(c => { const v = c.val() || {}; rows.push({ k: c.key, e: v.email || c.key, d: v.device || "", t: v.lastSeen || 0 }); });
+    rows.sort((a, b) => b.t - a.t);
+    let fresh = null;
+    rows.forEach(r => { if (!loginFirst && loginSeen[r.k] !== r.t && r.t) fresh = r; loginSeen[r.k] = r.t; });
+    $("#loginList").innerHTML = rows.map(r => '<div class="note" style="margin:6px 0"><b>' + esc(r.e) + '</b> &middot; ' + esc(r.d) + '<br>' + (r.t ? new Date(r.t).toLocaleString("hi-IN") + " (" + ago(r.t) + ")" : "") + '</div>').join("") || '<span class="note">Abhi koi nahi.</span>';
+    if (fresh) {
+      const b = document.createElement("div");
+      b.textContent = "Login: " + fresh.e + " - " + new Date(fresh.t).toLocaleTimeString("hi-IN");
+      b.style.cssText = "position:fixed;left:12px;right:12px;top:12px;z-index:9999;background:#ffd84d;color:#000;padding:12px 14px;border-radius:12px;font-weight:700;text-align:center";
+      document.body.appendChild(b); setTimeout(() => b.remove(), 6000);
+      try { navigator.vibrate && navigator.vibrate([200, 100, 200]); } catch (e) {}
+    }
+    loginFirst = false;
+  }, () => {});
+}
+
+
+async function timeIt(url) {
+  const t = performance.now();
+  try { await fetch(url, { mode: "no-cors", cache: "no-store" }); } catch (e) { return -1; }
+  return Math.round(performance.now() - t);
+}
+$("#btnSpeed").onclick = async () => {
+  const u = ($("#cfgProxy").value || "").trim().replace(/\/+$/, "");
+  if (!u) { $("#spState").textContent = "Pehle Proxy ka address bharo."; return; }
+  $("#spState").textContent = "Naap raha hoon (10-20 second)...";
+  try {
+    const tok = await firebase.auth().currentUser.getIdToken();
+    const a1 = await timeIt(u + "/");
+    const b1 = await timeIt(u + "/live?t=" + encodeURIComponent(tok));
+    const b2 = await timeIt(u + "/live?t=" + encodeURIComponent(tok));
+    const f = (x) => x < 0 ? "fail" : x + " ms";
+    let msg = "Worker seedha: " + f(a1) + " | login+jaanch pehli baar: " + f(b1) + " | doosri baar: " + f(b2) + ". ";
+    if (b1 < 0) msg += "Worker tak pahunch nahi paya.";
+    else if (b1 > 4000 && b2 < b1 / 2) msg += "Pehli baar bahut dheere (thanda start): Worker ka server-side kaam bhari hai.";
+    else if (b2 > 2500) msg += "Har baar dheere: Worker ya Firebase ki taraf dikkat.";
+    else msg += "Worker theek tez hai; dheerapan Gemini/ऐप ki taraf ka hai.";
+    $("#spState").textContent = msg;
+  } catch (e) { $("#spState").textContent = "Error: " + e.message; }
+};
+
+/* ---------- brain ---------- */
+let brainRaw = {}, locksRaw = {};
+function renderBrain() {
+  const ids = Object.keys(brainRaw).sort((a, b) => (brainRaw[b].t || 0) - (brainRaw[a].t || 0));
+  $("#brainList").innerHTML = ids.length ? ids.map(id =>
+    '<div class="card chatcard"><div class="meta note">' + fmt(brainRaw[id].t) + '</div><div>' + esc(brainRaw[id].text) +
+    '</div><div class="row" style="margin-top:6px"><button class="small bad" data-bd="' + esc(id) + '">HATAO</button></div></div>').join("")
+    : '<span class="note">Abhi kuch nahi sikhaya.</span>';
+}
+$("#btnBrainAdd").onclick = async () => {
+  const t = $("#brainNew").value.trim(); if (!t) return;
+  try { await db.ref("brain").push({ t: Date.now(), text: t.slice(0, 1400) }); $("#brainNew").value = ""; } catch (e) { alert("Error: " + e.message); }
+};
+$("#brainList").onclick = (e) => { const b = e.target.closest("button[data-bd]"); if (b && confirm("Ye baat bhulwa dun?")) db.ref("brain/" + b.dataset.bd).remove(); };
+
+/* ---------- locked users ---------- */
+function renderLocks() {
+  const ks = Object.keys(locksRaw);
+  $("#lockList").innerHTML = ks.length ? ks.map(k => {
+    const l = locksRaw[k] || {}, a = l.apology;
+    return '<div class="card chatcard"><div class="meta note"><b>' + esc((l.email || k).replace(/,/g, ".")) + '</b> &middot; ' + fmt(l.t) + ' &middot; ' + esc(l.why || "") + '</div>' +
+      (l.q ? '<div class="note">Usne likha: ' + esc(l.q) + '</div>' : '') +
+      (a ? '<div style="margin-top:6px"><b>Maafi:</b> ' + esc(a.text) + ' <span class="note">(' + fmt(a.t) + ')</span></div>' : '<div class="note" style="margin-top:6px">Abhi maafi nahi aayi.</div>') +
+      '<div class="row" style="margin-top:8px"><button class="small" data-ul="' + esc(k) + '">MAAF KIYA, KHOL DO</button></div></div>';
+  }).join("") : '<span class="note">Koi lock nahi.</span>';
+}
+$("#lockList").onclick = (e) => { const b = e.target.closest("button[data-ul]"); if (b && confirm("Is user ka app khol dun?")) db.ref("locks/" + b.dataset.ul).remove(); };
+$("#btnLock").onclick = async () => {
+  const em = $("#lockEmail").value.trim().toLowerCase(); if (!em) return;
+  try { await db.ref("locks/" + ek(em)).set({ t: Date.now(), why: "malik ne app band kiya", email: em }); $("#lockEmail").value = ""; } catch (e) { alert("Error: " + e.message); }
+};
+
+/* ---------- export ---------- */
+function download(name, text, type) {
+  if (window.AndroidBridge && window.AndroidBridge.saveText) {
+    let r = "";
+    try { r = window.AndroidBridge.saveText(name, text); } catch (e) { r = "Save nahi hua: " + e.message; }
+    alert(r || (name + " save ho gaya."));
+    return;
+  }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([text], { type: type }));
+  a.download = name; a.click();
+}
+$("#btnCsv").onclick = () => {
+  const q = (v) => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
+  const rows = [["email", "source", "devices", "first_seen", "last_seen", "questions", "blocked"]].concat(
+    agg.map(a => [a.email, a.src, a.devices.join(" | "), fmt(a.first), fmt(a.last), a.count, blocked[ek(a.email)] ? "yes" : "no"]));
+  download("users.csv", rows.map(r => r.map(q).join(",")).join("\n"), "text/csv");
+};
+$("#btnMsgJson").onclick = async () => {
+  const snap = await db.ref("messages").orderByChild("t").limitToLast(5000).once("value");
+  const arr = []; snap.forEach(c => { arr.push(Object.assign({ id: c.key }, c.val())); });
+  download("messages.json", JSON.stringify(arr, null, 2), "application/json");
+};
+$("#btnFbJson").onclick = async () => {
+  const snap = await db.ref("feedback").orderByChild("t").limitToLast(5000).once("value");
+  const arr = []; snap.forEach(c => { arr.push(Object.assign({ id: c.key }, c.val())); });
+  download("feedback.json", JSON.stringify(arr, null, 2), "application/json");
+};
+</script>
+</body>
+</html>
