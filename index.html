@@ -520,17 +520,22 @@ $("#btnOut2").onclick = () => auth.signOut();
 function showOnly(id) { ["login", "verify", "app"].forEach(x => $("#" + x).classList.toggle("hidden", x !== id)); }
 function showPerm(err) {
   const u = auth.currentUser;
+  if (!u) return;      /* logout ke waqt Firebase purane listeners ko "permission_denied" bhejta hai: use ignore karo */
   $("#permUid").textContent = u ? u.uid : "-";
   $("#permWhy").textContent = err && err.message ? err.message : "";
   $("#permBanner").classList.remove("hidden");
 }
 function enter(user) {
+  $("#permBanner").classList.add("hidden");
   showOnly("app");
   $("#who").innerHTML = esc(user.email) + '<div class="uid">UID: ' + esc(user.uid) + ' &middot; email verify: ' + (user.emailVerified ? "haan" : "nahi") + "</div>";
   if (!started) { started = true; start(); }
 }
 auth.onAuthStateChanged((user) => {
-  if (!user) { showOnly("login"); return; }
+  if (!user) {
+    if (started) { started = false; location.reload(); return; }   /* logout ke baad purane listeners band: page naya ho jaye */
+    showOnly("login"); return;
+  }
   if ((user.email || "").toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
     $("#loginErr").textContent = "Ye account admin nahi hai: " + user.email;
     auth.signOut();
