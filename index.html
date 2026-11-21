@@ -151,6 +151,7 @@
     <button data-t="users">Users</button>
     <button data-t="chats">Chats</button>
     <button data-t="fb">Feedback</button>
+    <button data-t="err">Errors</button>
     <button data-t="ctrl">Controls</button>
     <button data-t="del">Deleted</button>
     <button data-t="exp">Export</button>
@@ -230,6 +231,16 @@
         <div class="note" style="margin-top:6px">Kisne dabaya, kya kaaran diya, aur kis sawal-jawab par. Sabse naye sabse upar (aakhri 300).</div>
       </div>
       <div id="fbList"></div>
+    </section>
+
+    <!-- Errors (app ki galtiyan: sirf admin ko dikhti hain) -->
+    <section id="t-err" class="hidden">
+      <div class="card">
+        <div class="row" style="justify-content:space-between"><b>App ki galtiyan</b>
+          <button class="small bad" id="errClear">SAB HATAO</button></div>
+        <div class="note" style="margin-top:6px">Users ke phone se aayi takneeki galtiyan (sirf aap yahan dekh sakte ho). Sabse nayi sabse upar, aakhri 150.</div>
+      </div>
+      <div id="errList"></div>
     </section>
 
     <!-- Controls -->
@@ -563,7 +574,7 @@ $("#btnCheckVerify").onclick = async () => {
 $("#tabs").onclick = (e) => {
   const b = e.target.closest("button"); if (!b) return;
   document.querySelectorAll("#tabs button").forEach(x => x.classList.toggle("on", x === b));
-  ["dash", "users", "chats", "fb", "ctrl", "del", "exp"].forEach(t => $("#t-" + t).classList.toggle("hidden", t !== b.dataset.t));
+  ["dash", "users", "chats", "fb", "err", "ctrl", "del", "exp"].forEach(t => $("#t-" + t).classList.toggle("hidden", t !== b.dataset.t));
   if (b.dataset.t === "ctrl") loadControls();
 };
 
@@ -584,6 +595,10 @@ function start() {
     feed = []; s.forEach(c => { feed.push(Object.assign({ id: c.key }, c.val())); });
     feed.sort((a, b) => b.t - a.t); renderFeed();
   }, err => { $("#feed").innerHTML = '<div class="err">Messages nahi padh sake: ' + esc(err.message) + ' (upar ka laal dabba dekho)</div>'; showPerm(err); });
+  db.ref("errlog").orderByChild("t").limitToLast(150).on("value", s => {
+    errRaw = []; s.forEach(c => { errRaw.push(Object.assign({ id: c.key }, c.val())); });
+    errRaw.sort((a, b) => (b.t || 0) - (a.t || 0)); renderErr();
+  }, err => { $("#errList").innerHTML = '<div class="err">Errors nahi padh sake: ' + esc(err.message) + ' (firebase_rules.json Publish kiya?)</div>'; });
   db.ref("feedback").orderByChild("t").limitToLast(300).on("value", s => {
     fbRaw = []; s.forEach(c => { fbRaw.push(Object.assign({ id: c.key }, c.val())); });
     fbRaw.sort((a, b) => (b.t || 0) - (a.t || 0)); renderFb();
@@ -623,6 +638,20 @@ function renderFeed() {
     '<div class="txt">' + esc(short(m.text, 400)) + '</div></div>').join("") : '<div class="note">Abhi koi message nahi.</div>';
 }
 $("#showModel").onchange = renderFeed;
+
+/* ---------- app ki galtiyan ---------- */
+let errRaw = [];
+function renderErr() {
+  $("#errList").innerHTML = errRaw.length ? errRaw.map(f =>
+    '<div class="card"><div class="row" style="justify-content:space-between"><div><b>' + esc(f.email || "-") + '</b></div>' +
+    '<span class="note">' + fmt(f.t) + '</span></div>' +
+    '<div class="reason" style="word-break:break-word">' + esc(f.m || "") + '</div>' +
+    '<div class="note">' + esc(f.v || "") + '</div></div>').join("") : '<div class="note">Abhi koi galti nahi aayi.</div>';
+}
+$("#errClear").onclick = async () => {
+  if (!confirm("Saari galtiyon ki list hata dun?")) return;
+  try { await db.ref("errlog").remove(); } catch (err) { alert("Error: " + err.message); }
+};
 
 /* ---------- feedback (like / dislike) ---------- */
 function renderFb() {
