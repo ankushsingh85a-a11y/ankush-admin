@@ -152,6 +152,7 @@
     <button data-t="chats">Chats</button>
     <button data-t="fb">Feedback</button>
     <button data-t="err">Errors</button>
+    <button data-t="abuse">Abuse</button>
     <button data-t="ctrl">Controls</button>
     <button data-t="del">Deleted</button>
     <button data-t="exp">Export</button>
@@ -186,6 +187,7 @@
 
     <!-- Users -->
     <section id="t-users" class="hidden">
+      <div class="card"><div class="row" style="justify-content:space-between"><div class="grow"><b>Sabko sandesh (popup)</b><div class="note">Heading, message aur buttons (OK / Cancel+OK / Update) khud likho. Ek user ko bhejna ho to uske saamne Message dabao.</div></div><button id="btnMsgAll">SANDESH BHEJO</button></div></div>
       <div class="card" id="limitBar">
         <div class="row" style="justify-content:space-between">
           <div class="grow"><b>Roz ki sawal limit (sab par)</b><div class="note" id="limitState">-</div></div>
@@ -241,6 +243,15 @@
         <div class="note" style="margin-top:6px">Users ke phone se aayi takneeki galtiyan (sirf aap yahan dekh sakte ho). Sabse nayi sabse upar, aakhri 150.</div>
       </div>
       <div id="errList"></div>
+    </section>
+
+    <!-- Abuse -->
+    <section id="t-abuse" class="hidden">
+      <div class="card">
+        <div class="row" style="justify-content:space-between"><b>Gaali ki report</b></div>
+        <div class="note" style="margin-top:6px">Jisne malik ko gaali di: kitni baar (n), kya likha, kab. n = 1 aur 2 par chetavani gayi, 3 par ID ban (Controls &gt; Locked users mein dikhega). "RESET" dabane par ginti 0 ho jaati hai.</div>
+      </div>
+      <div id="abuseList"></div>
     </section>
 
     <!-- Controls -->
@@ -574,7 +585,7 @@ $("#btnCheckVerify").onclick = async () => {
 $("#tabs").onclick = (e) => {
   const b = e.target.closest("button"); if (!b) return;
   document.querySelectorAll("#tabs button").forEach(x => x.classList.toggle("on", x === b));
-  ["dash", "users", "chats", "fb", "err", "ctrl", "del", "exp"].forEach(t => $("#t-" + t).classList.toggle("hidden", t !== b.dataset.t));
+  ["dash", "users", "chats", "fb", "err", "abuse", "ctrl", "del", "exp"].forEach(t => $("#t-" + t).classList.toggle("hidden", t !== b.dataset.t));
   if (b.dataset.t === "ctrl") loadControls();
 };
 
@@ -595,6 +606,7 @@ function start() {
     feed = []; s.forEach(c => { feed.push(Object.assign({ id: c.key }, c.val())); });
     feed.sort((a, b) => b.t - a.t); renderFeed();
   }, err => { $("#feed").innerHTML = '<div class="err">Messages nahi padh sake: ' + esc(err.message) + ' (upar ka laal dabba dekho)</div>'; showPerm(err); });
+  try { watchAbuse(); } catch (e) {}
   db.ref("errlog").orderByChild("t").limitToLast(150).on("value", s => {
     errRaw = []; s.forEach(c => { errRaw.push(Object.assign({ id: c.key }, c.val())); });
     errRaw.sort((a, b) => (b.t || 0) - (a.t || 0)); renderErr();
@@ -741,12 +753,7 @@ $("#uBody").onclick = async (e) => {
   if (a === "chats") { document.querySelector('#tabs button[data-t="chats"]').click(); $("#chatEmail").value = email; loadChats(); }
   if (a === "block") await db.ref("blocked/" + ek(email)).set(true);
   if (a === "unblock") await db.ref("blocked/" + ek(email)).remove();
-  if (a === "msg") {
-    const t = prompt("Is user ko kya message bhejna hai? (khaali chhodoge to purana message hat jayega)");
-    if (t === null) return;
-    if (t.trim()) await db.ref("notices/" + ek(email)).set({ text: t.trim(), at: Date.now() }); else await db.ref("notices/" + ek(email)).remove();
-    alert("Ho gaya.");
-  }
+  if (a === "msg") openMsgForm(email);
   if (a === "del") await deleteUserData(email);
   if (a === "ctl") openUserCtl(email);
 };
@@ -1213,12 +1220,73 @@ function renderLocks() {
       '<div class="row" style="margin-top:8px"><button class="small" data-ul="' + esc(k) + '">MAAF KIYA, KHOL DO</button></div></div>';
   }).join("") : '<span class="note">Koi lock nahi.</span>';
 }
-$("#lockList").onclick = (e) => { const b = e.target.closest("button[data-ul]"); if (b && confirm("Is user ka app khol dun?")) db.ref("locks/" + b.dataset.ul).remove(); };
+$("#lockList").onclick = (e) => { const b = e.target.closest("button[data-ul]"); if (b && confirm("Is user ka app khol dun?")) { db.ref("locks/" + b.dataset.ul).remove(); db.ref("abuse/" + b.dataset.ul).remove(); } };
 $("#btnLock").onclick = async () => {
   const em = $("#lockEmail").value.trim().toLowerCase(); if (!em) return;
   try { await db.ref("locks/" + ek(em)).set({ t: Date.now(), why: "malik ne app band kiya", email: em }); $("#lockEmail").value = ""; } catch (e) { alert("Error: " + e.message); }
 };
 
+
+/* ---------- gaali ki report ---------- */
+let abuseRaw = {}, abuseSeen = {}, abuseFirst = true;
+function renderAbuse() {
+  const ks = Object.keys(abuseRaw).sort((a, b) => (abuseRaw[b].t || 0) - (abuseRaw[a].t || 0));
+  $("#abuseList").innerHTML = ks.length ? ks.map(k => {
+    const a = abuseRaw[k] || {};
+    return '<div class="card"><div class="row" style="justify-content:space-between"><div><b>' + esc(a.email || k) + '</b> <span class="tag ' + ((a.n || 0) >= 3 ? "bad" : "warn") + '">n = ' + esc(a.n || 0) + '</span></div><span class="note">' + fmt(a.t) + '</span></div>' +
+      '<div class="reason" style="word-break:break-word;white-space:pre-wrap;margin:8px 0">' + esc(a.q || "") + '</div>' +
+      '<div class="row"><button class="small" data-ab="' + esc(k) + '">RESET (0)</button></div></div>';
+  }).join("") : '<div class="note">Abhi kisi ne gaali nahi di.</div>';
+}
+$("#abuseList").onclick = (e) => { const b = e.target.closest("button[data-ab]"); if (b && confirm("Is user ki gaali ginti 0 kar dun?")) db.ref("abuse/" + b.dataset.ab).remove(); };
+function watchAbuse() {
+  db.ref("abuse").on("value", (snap) => {
+    abuseRaw = snap.val() || {};
+    let fresh = null;
+    Object.keys(abuseRaw).forEach(k => { const t = abuseRaw[k].t || 0; if (!abuseFirst && abuseSeen[k] !== t && t) fresh = abuseRaw[k]; abuseSeen[k] = t; });
+    renderAbuse();
+    if (fresh) {
+      const b = document.createElement("div");
+      b.textContent = "Gaali: " + (fresh.email || "?") + " (n=" + (fresh.n || 0) + ")" + ((fresh.n || 0) >= 3 ? " - ID BAN" : "");
+      b.style.cssText = "position:fixed;left:12px;right:12px;top:12px;z-index:9999;background:#ff5c5c;color:#000;padding:12px 14px;border-radius:12px;font-weight:700;text-align:center";
+      document.body.appendChild(b); setTimeout(() => b.remove(), 8000);
+      try { navigator.vibrate && navigator.vibrate([300, 100, 300]); } catch (e) {}
+    }
+    abuseFirst = false;
+  }, () => {});
+}
+
+/* ---------- user ko sandesh (popup): ek user ya sabko ---------- */
+function openMsgForm(email) {
+  stopLive();
+  $("#mTitle").textContent = email ? "Sandesh bhejo" : "Sabko sandesh bhejo";
+  $("#mSub").textContent = email || "sabhi users";
+  $("#mBody").innerHTML =
+    '<label>Heading (popup ke upar badi line)</label><input id="mf_t" type="text" placeholder="Jaise: Naya update aa gaya">' +
+    '<label>Message (heading ke neeche ka text)</label><textarea id="mf_b" placeholder="Jaise: Naya version download karo, bahut saare naye feature hain."></textarea>' +
+    '<label>Buttons</label><select id="mf_btn"><option value="ok">Sirf OK</option><option value="okcancel">Cancel + OK</option><option value="update">Cancel + UPDATE (link khulega)</option></select>' +
+    '<label>Update ka link (sirf UPDATE ke liye; khaali = Controls ka update link)</label><input id="mf_url" type="text" placeholder="https://...">' +
+    '<div class="row" style="margin-top:12px"><button id="mf_send">BHEJO</button><button id="mf_clear" class="small bad">PURANA SANDESH HATAO</button></div><div class="note" id="mf_msg"></div>';
+  $("#modal").classList.remove("hidden");
+  $("#mf_send").onclick = async () => {
+    const body = $("#mf_b").value.trim(), title = $("#mf_t").value.trim(), btn = $("#mf_btn").value, url = $("#mf_url").value.trim();
+    if (!body) { $("#mf_msg").textContent = "Message likho."; return; }
+    const o = { title: title.slice(0, 110), btn: btn, at: Date.now() };
+    if (url) o.url = url.slice(0, 480);
+    try {
+      if (email) { o.text = body.slice(0, 1900); await db.ref("notices/" + ek(email)).set(o); }
+      else { o.body = body.slice(0, 1900); await db.ref("broadcast").set(o); }
+      $("#mf_msg").textContent = "Bhej diya. User ke app mein ~20 second mein popup aayega.";
+    } catch (err) { $("#mf_msg").textContent = "Error: " + err.message; }
+  };
+  $("#mf_clear").onclick = async () => {
+    try { await db.ref(email ? "notices/" + ek(email) : "broadcast").remove(); $("#mf_msg").textContent = "Hata diya."; }
+    catch (err) { $("#mf_msg").textContent = "Error: " + err.message; }
+  };
+}
+$("#btnMsgAll").onclick = () => openMsgForm("");
+
+/* ---------- user ke kaam (users tab ka Message) ----------*/
 /* ---------- export ---------- */
 function download(name, text, type) {
   if (window.AndroidBridge && window.AndroidBridge.saveText) {
