@@ -306,7 +306,7 @@
         </div>
 
         <div class="ksec">
-          <div class="khead"><b>2. BACKUP API</b></div>
+          <div class="khead"><b>2. BACKUP API (jawab ke liye)</b></div>
           <div class="note">Mukhya thake ya band ho to ye line se chalengi. "+" dabao to ek aur dabba judega, &#10005; dabao to wo hat jaayegi.</div>
           <div id="bkList"></div>
           <button class="plus" id="btnBkAdd" type="button">+ ek aur BACKUP</button>
@@ -317,6 +317,13 @@
           <div class="note">Jawab ke neeche speaker dabane par Gemini ki awaaz in keys se banti hai (alag Google account / project ki free keys). Ek thak jaye to agli chalegi; sab thak jayen to normal keys, phir phone ki awaaz. Khaali chhodo to normal keys hi chalengi.</div>
           <div id="vkList"></div>
           <button class="plus" id="btnVkAdd" type="button">+ ek aur AWAAZ key</button>
+        </div>
+
+        <div class="ksec">
+          <div class="khead"><b>BOLKAR LIKHNE (mic / STT) KE LIYE ALAG KEYS</b></div>
+          <div class="note">Mic dabakar bolne par likhai in keys se hoti hai. Ek ka limit poora ho to agli chalegi; sab thak jayen to normal (jawab wali) keys. Khaali chhodo to normal keys hi chalengi.</div>
+          <div id="skList"></div>
+          <button class="plus" id="btnSkAdd" type="button">+ ek aur MIC (STT) key</button>
         </div>
 
         <div class="ksec">
@@ -1107,6 +1114,15 @@ function addVkRow(v) {
   d.appendChild(i); d.appendChild(x); $("#vkList").appendChild(d);
 }
 $("#btnVkAdd").onclick = () => addVkRow("");
+function addSkRow(v) {
+  const d = document.createElement("div"); d.className = "krow2 bkrow";
+  const i = document.createElement("input"); i.className = "skin"; i.type = $("#showKeys").checked ? "text" : "password"; i.autocomplete = "off"; i.placeholder = "Gemini key (AQ.Ab8... / AIza...)"; i.value = v || "";
+  const x = document.createElement("button"); x.type = "button"; x.className = "x"; x.innerHTML = "&#10005;"; x.title = "hatao";
+  x.onclick = () => { if (!i.value || confirm("Ye mic key hata dun? (KEYS SAVE dabane par pakka hoga)")) d.remove(); };
+  d.appendChild(i); d.appendChild(x); $("#skList").appendChild(d);
+}
+$("#btnSkAdd").onclick = () => addSkRow("");
+function skValues() { return [...document.querySelectorAll(".skin")].map(i => nz(i.value)).filter(Boolean); }
 function vkValues() { return [...document.querySelectorAll(".vkin")].map(i => nz(i.value)).filter(Boolean); }
 function bkValues() { return [...document.querySelectorAll(".bkin")].map(i => nz(i.value)).filter(Boolean); }
 async function loadSecrets() {
@@ -1123,12 +1139,16 @@ async function loadSecrets() {
     const vl = []; if (s.voiceKeys) (Array.isArray(s.voiceKeys) ? s.voiceKeys : Object.keys(s.voiceKeys).sort().map(n => s.voiceKeys[n])).forEach(v => { if (v && !vl.includes(v)) vl.push(v); });
     vl.forEach(addVkRow);
     if (!vl.length) addVkRow("");
-    const n = Object.keys(s).filter(k => s[k] && k !== "backups" && k !== "voiceKeys").length + seen.length - [s.apiKey2, s.altKey, s.altKey2].filter(Boolean).length;
+    $("#skList").innerHTML = "";
+    const sl = []; if (s.sttKeys) (Array.isArray(s.sttKeys) ? s.sttKeys : Object.keys(s.sttKeys).sort().map(n => s.sttKeys[n])).forEach(v => { if (v && !sl.includes(v)) sl.push(v); });
+    sl.forEach(addSkRow);
+    if (!sl.length) addSkRow("");
+    const n = Object.keys(s).filter(k => s[k] && k !== "backups" && k !== "voiceKeys" && k !== "sttKeys").length + seen.length - [s.apiKey2, s.altKey, s.altKey2].filter(Boolean).length;
     $("#keyState").textContent = n ? n + " key set hain." : "Abhi koi key nahi.";
     syncTaskBoxes();
   } catch (e) { $("#keyState").textContent = "Padh nahi sake: " + e.message + " (rules publish karo)"; }
 }
-$("#showKeys").onchange = (e) => { document.querySelectorAll(".kin,.bkin,.vkin").forEach(i => i.type = e.target.checked ? "text" : "password"); };
+$("#showKeys").onchange = (e) => { document.querySelectorAll(".kin,.bkin,.vkin,.skin").forEach(i => i.type = e.target.checked ? "text" : "password"); };
 $("#btnSaveKeys").onclick = async () => {
   try {
     const o = {};
@@ -1136,6 +1156,7 @@ $("#btnSaveKeys").onclick = async () => {
     o.apiKey2 = null; o.altKey = null; o.altKey2 = null;
     const bv = bkValues(); o.backups = bv.length ? bv : null;
     const vv = vkValues(); o.voiceKeys = vv.length ? vv : null;
+    const sv = skValues(); o.sttKeys = sv.length ? sv : null;
     await db.ref("secrets").update(o);
     await db.ref("config").update({ apiKey2: null, altKey: null, geminiKey: null, extraBackup: null, mainOn: $("#cfgMainOn").checked, taskApi: $("#cfgTaskOn").checked, codeOn: $("#cfgCodeOn").checked, imageOn: $("#cfgImageOn").checked,
       liveOn: $("#cfgLiveOn").checked });
@@ -1144,13 +1165,13 @@ $("#btnSaveKeys").onclick = async () => {
 };
 async function delKeys(list) {
   try {
-    for (const k of list) { await db.ref("secrets/" + k).remove(); const i = kinEl(k); if (i) i.value = ""; if (k === "backups") { $("#bkList").innerHTML = ""; addBkRow(""); } if (k === "voiceKeys") { $("#vkList").innerHTML = ""; addVkRow(""); } }
+    for (const k of list) { await db.ref("secrets/" + k).remove(); const i = kinEl(k); if (i) i.value = ""; if (k === "backups") { $("#bkList").innerHTML = ""; addBkRow(""); } if (k === "voiceKeys") { $("#vkList").innerHTML = ""; addVkRow(""); } if (k === "sttKeys") { $("#skList").innerHTML = ""; addSkRow(""); } }
     $("#keyState").textContent = list.length + " key hata di.";
   } catch (e) { $("#keyState").textContent = "Error: " + e.message; }
 }
 document.querySelectorAll("[data-delkey]").forEach(b => b.onclick = () => { if (confirm("Ye key hata dun?")) delKeys([b.dataset.delkey]); });
 $("#btnDelAll").onclick = () => {
-  if (confirm("SAARI keys hata dun? AI chalna band ho jayega jab tak nayi na daalo.") && confirm("Pakka? Ye wapas nahi aayengi.")) delKeys(["apiKey", "apiKey2", "altKey", "altKey2", "backups", "voiceKeys", "codeKey", "imageKey", "liveKey"]);
+  if (confirm("SAARI keys hata dun? AI chalna band ho jayega jab tak nayi na daalo.") && confirm("Pakka? Ye wapas nahi aayengi.")) delKeys(["apiKey", "apiKey2", "altKey", "altKey2", "backups", "voiceKeys", "sttKeys", "codeKey", "imageKey", "liveKey"]);
 };
 
 
