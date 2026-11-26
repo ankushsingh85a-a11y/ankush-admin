@@ -1099,11 +1099,26 @@ function syncTaskBoxes() {
 }
 ["cfgCodeOn","cfgImageOn","cfgLiveOn","cfgTaskOn"].forEach(id => { $("#" + id).onchange = syncTaskBoxes; });
 function addBkRow(v) {
-  const d = document.createElement("div"); d.className = "krow2 bkrow";
-  const i = document.createElement("input"); i.className = "bkin"; i.type = $("#showKeys").checked ? "text" : "password"; i.autocomplete = "off"; i.placeholder = "koi bhi API key"; i.value = v || "";
+  const ent = (v && typeof v === "object") ? v : { k: v || "" };
+  const d = document.createElement("div"); d.className = "bkrow"; d.style.cssText = "margin-top:10px;padding:8px;border:1px solid #2a3350;border-radius:10px";
+  const r1 = document.createElement("div"); r1.className = "krow2"; r1.style.marginTop = "0";
+  const i = document.createElement("input"); i.className = "bkin"; i.type = $("#showKeys").checked ? "text" : "password"; i.autocomplete = "off"; i.placeholder = "API key (Gemini / OpenRouter / Groq ...)"; i.value = ent.k || "";
   const x = document.createElement("button"); x.type = "button"; x.className = "x"; x.innerHTML = "&#10005;"; x.title = "hatao";
   x.onclick = () => { if (!i.value || confirm("Ye backup key hata dun? (KEYS SAVE dabane par pakka hoga)")) d.remove(); };
-  d.appendChild(i); d.appendChild(x); $("#bkList").appendChild(d);
+  r1.appendChild(i); r1.appendChild(x);
+  const r2 = document.createElement("div"); r2.className = "krow2";
+  const sel = document.createElement("select"); sel.className = "bkprov"; sel.style.maxWidth = "46%";
+  [["auto", "Auto (key se pehchan)"], ["gemini", "Gemini"], ["openrouter", "OpenRouter"], ["groq", "Groq"], ["cerebras", "Cerebras"], ["deepseek", "DeepSeek"], ["openai", "OpenAI"]].forEach(o => { const op = document.createElement("option"); op.value = o[0]; op.textContent = o[1]; sel.appendChild(op); });
+  sel.value = ent.p || "auto";
+  const mi = document.createElement("input"); mi.className = "bkmod"; mi.type = "text"; mi.autocomplete = "off"; mi.value = ent.m || "";
+  const sync = () => {
+    const p = sel.value === "auto" ? (/^(AQ\.|AIza)/.test(i.value) ? "gemini" : (i.value.startsWith("sk-or-") ? "openrouter" : "")) : sel.value;
+    mi.style.display = p === "gemini" ? "none" : "";
+    mi.placeholder = p === "openrouter" ? "model (sirf :free wale chalenge), jaise meta-llama/llama-3.3-70b-instruct:free (khaali = apne-aap)" : "model naam (khaali = apne-aap)";
+  };
+  sel.onchange = sync; i.oninput = sync; sync();
+  r2.appendChild(sel); r2.appendChild(mi);
+  d.appendChild(r1); d.appendChild(r2); $("#bkList").appendChild(d);
 }
 $("#btnBkAdd").onclick = () => addBkRow("");
 function addVkRow(v) {
@@ -1124,7 +1139,13 @@ function addSkRow(v) {
 $("#btnSkAdd").onclick = () => addSkRow("");
 function skValues() { return [...document.querySelectorAll(".skin")].map(i => nz(i.value)).filter(Boolean); }
 function vkValues() { return [...document.querySelectorAll(".vkin")].map(i => nz(i.value)).filter(Boolean); }
-function bkValues() { return [...document.querySelectorAll(".bkin")].map(i => nz(i.value)).filter(Boolean); }
+function bkValues() {
+  return [...document.querySelectorAll(".bkrow")].map(d => {
+    const k = nz(d.querySelector(".bkin").value); if (!k) return null;
+    const p = d.querySelector(".bkprov").value, m = nz(d.querySelector(".bkmod").value) || "";
+    return (p === "auto" && !m) ? k : { k: k, p: p, m: m };
+  }).filter(Boolean);
+}
 async function loadSecrets() {
   try {
     const s = (await db.ref("secrets").once("value")).val() || {};
@@ -1132,7 +1153,8 @@ async function loadSecrets() {
     $("#bkList").innerHTML = "";
     const bl = [s.apiKey2, s.altKey, s.altKey2];
     if (s.backups) (Array.isArray(s.backups) ? s.backups : Object.keys(s.backups).sort().map(n => s.backups[n])).forEach(v => bl.push(v));
-    const seen = []; bl.forEach(v => { if (v && !seen.includes(v)) seen.push(v); });
+    const ekey = (v) => (v && typeof v === "object") ? v.k : v;
+    const seen = []; bl.forEach(v => { if (v && ekey(v) && !seen.some(z => ekey(z) === ekey(v))) seen.push(v); });
     seen.forEach(addBkRow);
     if (!seen.length) addBkRow("");
     $("#vkList").innerHTML = "";
@@ -1302,8 +1324,9 @@ function watchAbuse() {
 function openMsgForm(email) {
   stopLive();
   $("#mTitle").textContent = email ? "Sandesh bhejo" : "Sabko sandesh bhejo";
-  $("#mSub").textContent = email || "sabhi users";
+  $("#mSub").textContent = email || "sabhi users (ya neeche kisi ek-do ka email likho)";
   $("#mBody").innerHTML =
+    '<label>Kisko bhejna hai? (khaali = SABHI users. Ek ya kai email comma se alag karke likho)</label><input id="mf_to" type="text" placeholder="a@gmail.com, b@gmail.com" value="' + (email || "") + '">' +
     '<label>Heading (popup ke upar badi line)</label><input id="mf_t" type="text" placeholder="Jaise: Naya update aa gaya">' +
     '<label>Message (heading ke neeche ka text)</label><textarea id="mf_b" placeholder="Jaise: Naya version download karo, bahut saare naye feature hain."></textarea>' +
     '<label>Buttons</label><select id="mf_btn"><option value="ok">Sirf OK</option><option value="okcancel">Cancel + OK</option><option value="update">Cancel + UPDATE (link khulega)</option></select>' +
@@ -1316,13 +1339,18 @@ function openMsgForm(email) {
     const o = { title: title.slice(0, 110), btn: btn, at: Date.now() };
     if (url) o.url = url.slice(0, 480);
     try {
-      if (email) { o.text = body.slice(0, 1900); await db.ref("notices/" + ek(email)).set(o); }
+      const to = $("#mf_to").value.split(/[,\s;]+/).map(z => z.trim()).filter(Boolean);
+      if (to.length) { o.text = body.slice(0, 1900); for (const em of to) await db.ref("notices/" + ek(em)).set(o); }
       else { o.body = body.slice(0, 1900); await db.ref("broadcast").set(o); }
-      $("#mf_msg").textContent = "Bhej diya. User ke app mein ~20 second mein popup aayega.";
+      $("#mf_msg").textContent = to.length ? ("Bhej diya (" + to.length + " user). App kholte hi ya ~10 second mein popup aayega.") : "Bhej diya (sabko). App kholte hi ya ~10 second mein popup aayega.";
     } catch (err) { $("#mf_msg").textContent = "Error: " + err.message; }
   };
   $("#mf_clear").onclick = async () => {
-    try { await db.ref(email ? "notices/" + ek(email) : "broadcast").remove(); $("#mf_msg").textContent = "Hata diya."; }
+    try {
+      const to = $("#mf_to").value.split(/[,\s;]+/).map(z => z.trim()).filter(Boolean);
+      if (to.length) { for (const em of to) await db.ref("notices/" + ek(em)).remove(); } else await db.ref("broadcast").remove();
+      $("#mf_msg").textContent = "Hata diya.";
+    }
     catch (err) { $("#mf_msg").textContent = "Error: " + err.message; }
   };
 }
